@@ -51,9 +51,6 @@ export const cbor_decode_trivial = <
 		ib_read += nb_ahead;
 	}
 
-	/* eslint-disable @typescript-eslint/no-unused-vars */
-	let f_bytes = (_?: any) => atu8_data.subarray(ib_read, ib_read+=xn_value);
-
 	let a_parsers = [
 		// uint
 		(_?: any) => xn_value,
@@ -62,7 +59,7 @@ export const cbor_decode_trivial = <
 		(_?: any) => -xn_value - 1,
 
 		// byte string
-		f_bytes,
+		(_?: any) => atu8_data.subarray(ib_read, ib_read+=xn_value),
 
 		// text string
 		(_?: any) => bytes_to_text(a_parsers[2]()),
@@ -90,19 +87,19 @@ export const cbor_decode_trivial = <
 		},
 
 		// tagged item
-		(__?: any) => [
+		(z_payload?: unknown) => [
 			// date/time string
-			(_?: any) => bytes_to_text(f_bytes()),
+			(_?: any) => bytes_to_text(z_payload as Uint8Array),
 
 			// epoch-based date/time as number of seconds (integer or float)
-			(xn_timestamp=0) => ([xn_timestamp, ib_read] = cbor_decode_trivial<number>(atu8_data, ib_read), xn_timestamp),
+			(_?: any) => z_payload as number,
 
 			// unsigned bigint
-			(_?: any) => bytes_to_biguint_be(f_bytes()),
+			(_?: any) => bytes_to_biguint_be(z_payload as Uint8Array),
 
 			// negative bigint
-			(_?: any) => -bytes_to_biguint_be(f_bytes()) - 1n,
-		][xc_additional](),
+			(_?: any) => -bytes_to_biguint_be(z_payload as Uint8Array) - 1n,
+		][xc_additional]([z_payload, ib_read]=cbor_decode_trivial(atu8_data, ib_read)),
 
 		// major type 7
 		(__?: any) => [
