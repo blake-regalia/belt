@@ -215,7 +215,7 @@ export const odc = create;
  */
 export const assign: <
 	h_object extends {},
-	h_extend extends {},
+	h_extend extends {}=Partial<h_object>,
 >(h_object: h_object, h_extend: h_extend) => h_object & h_extend = Object.assign;
 
 /**
