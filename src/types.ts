@@ -28,6 +28,16 @@ export type Subtype<w_type, w_id> = {
  */
 export type Unsubtype<w_type> = w_type extends {[ES_TYPE]: infer w_actual}? w_actual: never;
 
+/**
+ * Accesses the given string key on the given struct if it exists
+ */
+export type Access<
+	g_struct extends {},
+	si_key extends string,
+> = g_struct extends {
+	[si in si_key]: infer w_value
+}? w_value: undefined;
+
 
 type UnionKeys<h_types> = h_types extends any? keyof U.IntersectOf<h_types>: never;
 
