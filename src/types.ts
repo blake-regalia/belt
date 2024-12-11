@@ -109,6 +109,11 @@ export type StringKeysOf<w_type> = w_type extends ArrayLike<any>
 export type ValuesOf<w_type> = w_type extends ArrayLike<infer w_value>? w_value: w_type[keyof w_type];
 
 /**
+ * Returns the values of the given type, extracting the properties of an Object having string keys.
+ */
+export type ValuesOfStruct<h_struct extends Record<string, any>> = h_struct[Extract<keyof h_struct, string>];
+
+/**
  * Union of all TypedArray types
  */
 export type TypedArray =
