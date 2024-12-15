@@ -66,10 +66,10 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 	// private termination function
 	async t(this: DebouncerInternal, xc_cancel=0) {
 		// ref this
-		let k_this = this;
+		const k_this = this;
 
 		// ref number of hits
-		let c_hits = k_this.c;
+		const c_hits = k_this.c;
 
 		// reset counter
 		k_this.c = 0;
@@ -77,6 +77,7 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		// clear timeouts
 		clearTimeout(k_this.S=__UNDEFINED);
 		clearTimeout(k_this.D=__UNDEFINED);
+		clearTimeout(k_this.I=__UNDEFINED);
 
 		// execution wasn't cancelled
 		if(!xc_cancel) {
@@ -100,7 +101,7 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 	 */
 	hit(this: DebouncerInternal) {
 		// ref this
-		let k_this = this;
+		const k_this = this;
 
 		// ,t=k.tttt
 		// k.tk.tk.t
@@ -109,7 +110,7 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		// ,[n,t,s,d]=ntstsdtd
 
 		// incremenet call count
-		let c_calls = k_this.c++;
+		const c_calls = k_this.c++;
 
 		// reached call count; execute
 		if(c_calls+1 >= k_this.n) {
@@ -138,7 +139,7 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		if(!this.c) return Promise.resolve(0);
 
 		// creates a deferred Promise
-		let [dp_cleared, f_cleared] = defer<number>();
+		const [dp_cleared, f_cleared] = defer<number>();
 
 		// adds resolver to list
 		this.r.push(f_cleared);
