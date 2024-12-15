@@ -8,7 +8,7 @@
 		"declaration": true,
 		"declarationDir": "dist/min",
 
-		"types": ["node", "bun-types"],
+		"types": ["node"],
 		"lib": ["ES2022"],
 	},
 
