@@ -177,6 +177,27 @@ export const is_iterable = <w_type=unknown>(z: unknown): z is Iterable<w_type> =
  */
 export const is_error = <h_extend extends object>(z: unknown): z is Error & h_extend => z instanceof Error;
 
+/**
+ * Typed alias for `Number.isFinite`
+ */
+export const is_finite = Number.isFinite as (z: unknown) => z is number;
+
+/**
+ * Typed alias for `Number.isInteger`
+ */
+export const is_integer = Number.isInteger as (z: unknown) => z is number;
+
+/**
+ * Typed alias for `Number.isSafeInteger`
+ */
+export const is_safe_integer = Number.isSafeInteger as (z: unknown) => z is number;
+
+/**
+ * Typed alias for `Number.isNaN`
+ */
+export const is_nan = Number.isNaN as (z: unknown) => z is number;
+
+
 
 /**
  * Typed alias to `Array.from`

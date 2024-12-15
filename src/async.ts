@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const */
 import type {Nilable} from './types';
 
-import {__UNDEFINED, F_NOOP} from './belt.js';
+import {__UNDEFINED, F_NOOP, is_finite} from './belt.js';
 
 /**
  * Promise-based version of `setTimeout()`
@@ -42,7 +42,7 @@ export const timeout_exec = <
 		});
 
 	// start waiting
-	const i_pending: number = Number.isFinite(xt_wait)
+	const i_pending: number = is_finite(xt_wait)
 		? (setTimeout as Window['setTimeout'])(() => {
 			// mark as timed out
 			b_timed_out = true;
