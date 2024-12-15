@@ -32,17 +32,23 @@ type DebouncerPrivate = {
 	// termination function
 	t: (this: DebouncerInternal, xc_execute?: 0 | 1) => Promise<void>;
 
-	// maximum span of time allowed to pass
+	// span of time allowed to pass after initial hit
 	s: number;
 
 	// span timeout
 	S: Timeout;
 
-	// delay of time after last hit before executing
+	// delay of time after last hit
 	d: number;
 
 	// delay timeout
 	D: Timeout;
+
+	// idle time allowed to pass after last execution
+	i: number;
+
+	// idle timeout
+	I: Timeout;
 
 	// current number of hits
 	c: number;
@@ -83,6 +89,9 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 			// call hooks with number of hits
 			a_cleared.map(f => f(c_hits));
 		}
+
+		// set a timeout to execute once the idle passes
+		if(is_finite(k_this.i)) k_this.I = setTimeout(() => k_this.t(), k_this.i);
 	},
 
 	/**
@@ -152,6 +161,7 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
  * @param f_exec - execution callback
  * @param xt_span - executes once this amount of time has passed after the initial hit
  * @param xt_delay - executes once this amount of time has passed after the last hit
+ * @param xt_idle - executes once this amount of time has passed after the last execution
  * @param n_calls - executes once this number of hits has occurred after initial hit
  * @returns 
  */
@@ -160,6 +170,7 @@ export const Debouncer = (
 	f_exec: () => Promisable<any>,
 	xt_span: number,
 	xt_delay=Infinity,
+	xt_idle=Infinity,
 	n_calls=Infinity
 ): Debouncer => assign(
 	create(G_PROTOTYPE) as Debouncer, {
@@ -169,6 +180,7 @@ export const Debouncer = (
 		// args
 		s: xt_span,
 		d: xt_delay,
+		i: xt_idle,
 		n: n_calls,
 
 		// fields
