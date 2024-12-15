@@ -6,7 +6,7 @@ import type {Promisable} from './types';
 import {defer} from './async';
 import {__UNDEFINED, assign, create, is_finite} from './belt';
 
-type Timeout = NodeJS.Timeout | Timer | number | undefined;
+type Timeout = NodeJS.Timeout | number | undefined;
 
 export interface Debouncer {
 	/**
