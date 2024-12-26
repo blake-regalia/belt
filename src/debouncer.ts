@@ -3,8 +3,8 @@ import type {O} from 'ts-toolbelt';
 
 import type {Promisable} from './types';
 
-import {defer} from './async';
-import {__UNDEFINED, assign, create, is_finite} from './belt';
+import {defer} from './async.js';
+import {__UNDEFINED, assign, create, is_finite} from './belt.js';
 
 type Timeout = NodeJS.Timeout | number | undefined;
 

@@ -105,6 +105,16 @@ export const cast: <w_to>(w_value: any) => w_to = F_IDENTITY;
 // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
 export const narrow = <w_to>(w_value: any): w_value is w_to => !0;
 
+/**
+ * Takes the given value, applies it as the sole argument to the given callback, and
+ * returns the callback's return value if it is not falsy, otherweise returns undefined.
+ * @param w_what - value to apply
+ * @param f_apply - callback to call
+ * @returns 
+ */
+export const keep = <w_what>(w_value: w_what, f_callback: (w_arg: w_what) => any): w_what | undefined => f_callback(w_value)? w_value: __UNDEFINED;
+
+
 
 /**
  * Equivalent to testing `'undefined' === typeof thing`
