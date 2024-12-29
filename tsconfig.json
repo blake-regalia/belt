@@ -16,5 +16,9 @@
 		"src/**/*.ts",
 		"rollup.config.ts",
 		"test/**/*.ts",
+	],
+
+	"exclude": [
+		"eslint.config.mjs"
 	]
 }

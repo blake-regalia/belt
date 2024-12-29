@@ -58,9 +58,9 @@ export const bigint_max = (a_values: bigint[]): bigint => a_values.reduce(bigint
 export const bigint_min = (a_values: bigint[]): bigint => a_values.reduce(bigint_lesser, 0n);
 
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 const S_UUID_V4 = 'xxxxxxxx_xxxx_4xxx_yxxx_xxxxxxxxxxxx';
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 const R_UUID_V4 = /[xy]/g;
 
 // @ts-expect-error in case crypto global is not defined
@@ -87,7 +87,7 @@ type Uint8ArrayConstructorParams =
  * @param f_attempt - the function to attempt
  * @returns 
  */
-export const safely_sync = <a_args extends unknown[], w_return>(f_attempt: (...a_args: a_args) => w_return) => (...a_args: a_args) => try_sync(_ => f_attempt(...a_args))[0];
+export const try_sync_safe = <a_args extends unknown[], w_return>(f_attempt: (...a_args: a_args) => w_return) => (...a_args: a_args) => try_sync(_ => f_attempt(...a_args))[0];
 
 /**
  * Typed alias to `JSON.stringify`
@@ -690,7 +690,7 @@ export const bytes_to_string8 = (atu8_bytes: Uint8Array): string => {
 
 
 // inspired by <https://github.com/ticlo/jsonesc/blob/master/dist/base93.js>
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 const SX_CHARS_BASE93 = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!#$%&'()*+,-./:;<=>?@[]^_`{|}~ ";
 
 /**
@@ -779,9 +779,9 @@ export const base93_to_bytes = (sb93_data: string): Uint8Array => {
 
 
 // inspired by <https://github.com/pur3miish/base58-js>
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 const SX_CHARS_BASE58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 const A_CHARS_BASE58 = /*#__PURE__*/(() => {
 	const a_out = Array(256).fill(-1);
 	let i_char = 0;

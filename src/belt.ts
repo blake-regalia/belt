@@ -1,4 +1,4 @@
-/* eslint-disable prefer-const */
+
 /* eslint-disable @typescript-eslint/naming-convention */
 import type {NoInfer} from 'ts-toolbelt/out/Function/NoInfer';
 
@@ -7,11 +7,11 @@ import type {InsteadOfAny, JsonObject, KeyValuable, StringKeysOf, Promisable, Ty
 /**
  * Utility nil buffer constant
  */
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 export const ATU8_NIL = /*#__PURE__*/new Uint8Array(0);
 
 
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 export const __UNDEFINED = void 0;
 
 /**
@@ -38,7 +38,7 @@ export const F_NOOP = () => {};  // eslint-disable-line
 /**
  * The "identity" function
  */
-export const F_IDENTITY = <w_in, w_out=w_in>(w: w_in): w_out => w as unknown as w_out;  // eslint-disable-line
+export const F_IDENTITY = <w_in, w_out=w_in>(w: w_in): w_out => w as unknown as w_out;
 
 /**
  * AND two bytes together
@@ -94,7 +94,7 @@ export const F_NXOR = (xb_a: number, xb_b: number): number => ~(xb_a ^ xb_b);
  * @param w_value - value to cast
  * @returns the value casted to the target type
 */
-// eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+
 export const cast: <w_to>(w_value: any) => w_to = F_IDENTITY;
 
 /**
@@ -112,7 +112,7 @@ export const narrow = <w_to>(w_value: any): w_value is w_to => !0;
  * @param f_apply - callback to call
  * @returns 
  */
-export const keep = <w_what>(w_value: w_what, f_callback: (w_arg: w_what) => any): w_what | undefined => f_callback(w_value)? w_value: __UNDEFINED;
+export const against = <w_what>(w_value: w_what, f_callback: (w_arg: w_what) => any): w_what | undefined => f_callback(w_value)? w_value: __UNDEFINED;
 
 
 
@@ -476,13 +476,9 @@ export const transform_values = <
 >(
 	w_src: w_src,
 	f_transform: (w_value: z_values, si_key: z_keys, i_entry: number) => w_out
-): NoInfer<{
-	[si_key_out in z_keys]: w_out;
-}> => from_entries(
+): NoInfer<Record<z_keys, w_out>> => from_entries(
 	map_entries<[z_keys, w_out], w_src, z_keys, z_values>(w_src, ([si_key, w_value], i_entry) => [si_key, f_transform(w_value, si_key, i_entry)])
-) as {
-	[si_key_out in z_keys]: w_out;
-};
+);
 
 /**
  * @deprecated Use {@link transform_values} instead
@@ -654,7 +650,7 @@ export const random_int = (x_a: number, x_b = 0): number => {
  */
 export const shuffle = <
 	w_list extends Array<any> | TypedArray,
-// eslint-disable-next-line @typescript-eslint/naming-convention
+
 >(a_items: w_list, f_random=random_int): w_list => {
 	let i_item = a_items.length;
 

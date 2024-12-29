@@ -2,8 +2,10 @@ import type {A, O, U} from 'ts-toolbelt';
 
 // would much prefer to use Symbol here, but TypeScript treats them as different types
 // if dependency versions don't align
+/* eslint-disable @typescript-eslint/naming-convention */
 export const TYPE_ID = '__TYPE_ID';
 export const ES_TYPE = '__ES_TYPE';
+/* eslint-enable */
 
 /**
  * Test whether a given type value is the `any` type. Returns `1` if true, `0` otherwise
@@ -34,6 +36,7 @@ export type Unsubtype<w_type> = w_type extends {[ES_TYPE]: infer w_actual}? w_ac
 export type Access<
 	g_struct extends {},
 	si_key extends string,
+// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
 > = g_struct extends {
 	[si in si_key]: infer w_value
 }? w_value: undefined;
@@ -49,11 +52,7 @@ type UnionKeys<h_types> = h_types extends any? keyof U.IntersectOf<h_types>: nev
 export type DiscriminatedUnion<h_types, h_clone=h_types> = h_types extends any
 	? UnionKeys<h_clone> extends infer as_keys
 		? {
-			[si_each in keyof h_types]: {
-				[si_key in si_each]: h_types[si_each];
-			} & {
-				[si_key in Exclude<A.Cast<as_keys, A.Key>, si_each>]?: undefined;
-			}
+			[si_each in keyof h_types]: Record<si_each, h_types[si_each]> & Partial<Record<Exclude<A.Cast<as_keys, A.Key>, si_each>, undefined>>
 		}[keyof h_types]
 		: never
 	: never;
@@ -240,7 +239,7 @@ declare global {
 		 * @param replacer An array of strings and numbers that acts as an approved list for selecting the object properties that will be stringified.
 		 * @param space Adds indentation, white space, and line break characters to the return-value JSON text to make it easier to read.
 		 */
-		// eslint-disable-next-line @typescript-eslint/unified-signatures
+
 		stringify<
 			s_subtype extends string,
 		>(value: any, replacer?: (number | string)[] | null, space?: string | number): NaiveJsonString<s_subtype>;

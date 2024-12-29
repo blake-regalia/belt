@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable prefer-const */
 import type {O} from 'ts-toolbelt';
 
@@ -66,10 +67,10 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 	// private termination function
 	async t(this: DebouncerInternal, xc_cancel=0) {
 		// ref this
-		const k_this = this;
+		let k_this = this;
 
 		// ref number of hits
-		const c_hits = k_this.c;
+		let c_hits = k_this.c;
 
 		// reset counter
 		k_this.c = 0;
@@ -101,7 +102,7 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 	 */
 	hit(this: DebouncerInternal) {
 		// ref this
-		const k_this = this;
+		let k_this = this;
 
 		// ,t=k.tttt
 		// k.tk.tk.t
@@ -110,7 +111,7 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		// ,[n,t,s,d]=ntstsdtd
 
 		// incremenet call count
-		const c_calls = k_this.c++;
+		let c_calls = k_this.c++;
 
 		// reached call count; execute
 		if(c_calls+1 >= k_this.n) {

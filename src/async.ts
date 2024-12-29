@@ -1,4 +1,4 @@
-/* eslint-disable prefer-const */
+
 import type {Nilable} from './types';
 
 import {__UNDEFINED, F_NOOP, is_finite} from './belt.js';
@@ -37,8 +37,8 @@ export const timeout_exec = <
 			// resolve promise
 			fk_resolve([w_return, 0]);
 		})
-		.catch((e_attempt) => {
-			fe_reject(e_attempt);
+		.catch((e_attempt: unknown) => {
+			fe_reject(e_attempt);  // eslint-disable-line @typescript-eslint/prefer-promise-reject-errors
 		});
 
 	// start waiting
