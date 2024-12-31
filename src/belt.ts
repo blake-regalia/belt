@@ -106,14 +106,13 @@ export const cast: <w_to>(w_value: any) => w_to = F_IDENTITY;
 export const narrow = <w_to>(w_value: any): w_value is w_to => !0;
 
 /**
- * Takes the given value, applies it as the sole argument to the given callback, and
- * returns the callback's return value if it is not falsy, otherweise returns undefined.
- * @param w_what - value to apply
- * @param f_apply - callback to call
- * @returns 
+ * Takes the given value and supplies it as the sole argument to the given callback.
+ * Returns the callback's return value.
+ * @param w_value - value to apply
+ * @param f_action - function to call
+ * @returns return value from `f_action(w_value)`
  */
-export const against = <w_what>(w_value: w_what, f_callback: (w_arg: w_what) => any): w_what | undefined => f_callback(w_value)? w_value: __UNDEFINED;
-
+export const supply = <w_value, w_return>(w_value: w_value, f_action: (w_use: w_value) => any): w_return => f_action(w_value);
 
 
 /**
@@ -212,10 +211,9 @@ export const is_nan = Number.isNaN as (z: unknown) => z is number;
 /**
  * Typed alias to `Array.from`
  */
-export const array: <
+export const array_from: <
 	w_value,
 >(a_in: Iterable<w_value>) => w_value[] = Array.from;
-
 
 /**
  * Traverses an {@link Iterable}
@@ -225,7 +223,19 @@ export const each: <
 >(
 	w_in: Iterable<w_value>,
 	f_each: (w_value: w_value, i_each: number) => void,
-) => void = (w_in, f_each) => array(w_in).forEach(f_each);
+) => void = (w_in, f_each) => array_from(w_in).forEach(f_each);
+
+/**
+ * Creates an array of the specified length and fills it with the given value.
+ * If a function is provided for fill, then it will be called using `Array#map`
+ * @param nl_size - target length of the array
+ * @param z_fill - fill value, or callback function to apply against `Array#map`
+ * @returns 
+ */
+export const array_fill = <w_return>(
+	nl_size: number,
+	z_fill: ((i_index: number) => w_return)
+): w_return[] => Array(nl_size).fill(z_fill).map(is_function(z_fill)? z_fill: F_IDENTITY);
 
 
 /**
@@ -523,7 +533,7 @@ export const fold = <
 	w_in: Iterable<w_value>,
 	f_fold: (z_value: w_value, i_each: number) => h_returned,
 	h_out: h_output={} as h_output
-): h_dest => array(w_in).reduce((h_acc, z_each, i_each) => assign(h_acc!, f_fold(z_each, i_each)) as unknown as h_output, h_out) as unknown as h_dest;
+): h_dest => array_from(w_in).reduce((h_acc, z_each, i_each) => assign(h_acc!, f_fold(z_each, i_each)) as unknown as h_output, h_out) as unknown as h_dest;
 
 
 /**
@@ -554,7 +564,7 @@ export const collapse = <
 >(
 	w_in: Iterable<w_value>,
 	f_collapse: (z_value: w_value, i_each: number) => [z_keys, z_values]
-): Record<z_keys, z_values> => from_entries(array(w_in).map(f_collapse));
+): Record<z_keys, z_values> => from_entries(array_from(w_in).map(f_collapse));
 
 
 /**
@@ -742,11 +752,11 @@ export const try_async = async<w_error, w_return>(f_try: () => Promisable<w_retu
 };
 
 /**
+ * @deprecated Use {@link supply} instead
  * Takes the given value and calls the given function with it as the first and only argument
  * @param w_value 
  * @param f_action 
  * @returns 
+ * @deprecated
  */
 export const call_with = <w_value, w_return>(w_value: w_value, f_action: (w_use: w_value) => w_return): w_return => f_action(w_value);
-
-

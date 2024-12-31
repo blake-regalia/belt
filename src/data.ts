@@ -2,7 +2,7 @@
 import type {Writable} from 'ts-toolbelt/out/Object/Writable';
 
 import type {NaiveBase58, NaiveBase64, NaiveBase93, NaiveHexLower} from './strings';
-import type {JsonObject, JsonValue, NaiveJsonString, Nilable} from './types';
+import type {JsonObject, JsonValue, NaiveJsonString, Nilable, TypedArray} from './types';
 
 import {XG_8, is_array, is_dict_es, is_string, entries, from_entries, die, try_sync} from './belt.js';
 
@@ -168,11 +168,18 @@ export const bytes = (...a_args: Uint8ArrayConstructorParams): Uint8Array => new
 
 
 /**
- * Helps reduce codesize
+ * Alias for `new DataView(...a_args)`
  * @param a_args 
  * @returns 
  */
 export const dataview = (...a_args: [buffer: ArrayBufferLike, byteOffset?: number, byteLength?: number]): DataView => new DataView(...a_args as [ArrayBufferLike]);
+
+/**
+ * Creates a {@link DataView} from a TypedArray.
+ * @param at_src - the TypedArray source
+ * @returns 
+ */
+export const dataview_from = (at_src: TypedArray): DataView => dataview(at_src.buffer, at_src.byteOffset, at_src.byteLength);
 
 
 /**

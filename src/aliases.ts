@@ -1,4 +1,3 @@
-
 export const subtle_decrypt = (...a: Parameters<SubtleCrypto['decrypt']>): ReturnType<SubtleCrypto['decrypt']> => crypto.subtle.decrypt(...a);
 export const subtle_derive_bits = (...a: Parameters<SubtleCrypto['deriveBits']>): ReturnType<SubtleCrypto['deriveBits']> => crypto.subtle.deriveBits(...a);
 export const subtle_derive_key = (...a: Parameters<SubtleCrypto['deriveKey']>): ReturnType<SubtleCrypto['deriveKey']> => crypto.subtle.deriveKey(...a);
