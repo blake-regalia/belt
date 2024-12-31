@@ -234,7 +234,7 @@ export const each: <
  */
 export const array_fill = <w_return>(
 	nl_size: number,
-	z_fill: ((i_index: number) => w_return)
+	z_fill: ((w_each: unknown, i_index: number) => w_return)
 ): w_return[] => Array(nl_size).fill(z_fill).map(is_function(z_fill)? z_fill: F_IDENTITY);
 
 
