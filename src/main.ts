@@ -5,5 +5,6 @@ export * from './cbor.js';
 export * from './data.js';
 export * from './debouncer.js';
 export * from './mutex-pool.js';
+export * from './nano-buffer.js';
 export * from './strings.js';
 export * from './types.js';
