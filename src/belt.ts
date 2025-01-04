@@ -118,7 +118,7 @@ export const supply = <w_value, w_return>(w_value: w_value, f_action: (w_use: w_
 /**
  * Equivalent to testing `'undefined' === typeof thing`
  */
-export const is_undefined = (z: unknown): z is undefined => (typeof z)[0] > 't';
+export const is_undefined = (z: unknown): z is undefined => typeof z > 't';
 
 /**
  * Equivalent to testing `'boolean' === typeof thing`
@@ -133,7 +133,7 @@ export const is_number = (z: unknown): z is number => 'n' === (typeof z)[0];
 /**
  * Equivalent to testing `'bigint' === typeof thing`
  */
-export const is_bigint = (z: unknown): z is bigint => 'i' === (typeof z)[1];
+export const is_bigint = (z: unknown): z is bigint => typeof z < 'bj';
 
 /**
  * Equivalent to testing `'string' === typeof thing`

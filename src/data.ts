@@ -1,6 +1,4 @@
 /* eslint-disable prefer-const */
-import type {Writable} from 'ts-toolbelt/out/Object/Writable';
-
 import type {NaiveBase58, NaiveBase64, NaiveBase93, NaiveHexLower} from './strings';
 import type {JsonObject, JsonValue, NaiveJsonString, Nilable, TypedArray} from './types';
 
@@ -864,7 +862,7 @@ export const base58_to_bytes = (sb58_buffer: string): Uint8Array => {
  * Cryptographically strong random bytes
  * @param nb_len - number of bytes to fill
  */
-export const crypto_random_bytes = (nb_len=32) => crypto.getRandomValues(bytes(nb_len));
+export const crypto_random_bytes = (nb_len=32): Uint8Array => crypto.getRandomValues(bytes(nb_len));
 
 /**
  * Cryptographically strong random number in the range [0, 1)
