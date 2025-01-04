@@ -1,5 +1,5 @@
-import {die} from './belt';
-import {bytes} from './data';
+import {die} from './belt.js';
+import {bytes} from './data.js';
 
 export const bytes_to_stream = (atu8: Uint8Array): ReadableStream<Uint8Array> => new Response(atu8).body!;
 export const pipe_bytes_through = (atu8: Uint8Array, d_pair: ReadableWritablePair<Uint8Array, Uint8Array>): ReadableStream<Uint8Array> => bytes_to_stream(atu8).pipeThrough(d_pair);
