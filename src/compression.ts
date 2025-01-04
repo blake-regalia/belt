@@ -7,13 +7,15 @@ export const stream_to_bytes = async(d_stream: ReadableStream): Promise<Uint8Arr
 
 const transcompress_bytes_gzip = (atu8: Uint8Array, d_stream: typeof CompressionStream | typeof DecompressionStream) => stream_to_bytes(pipe_bytes_through(atu8, new d_stream('gzip')));
 
+type Gzipper = (atu8: Uint8Array) => Promise<Uint8Array>;
+
 // eslint-disable-next-line @typescript-eslint/naming-convention
 declare const Bun: {
-	gzipSync?: (atu8: Uint8Array) => Promise<Uint8Array>;
-	gunzipSync?: (atu8: Uint8Array) => Promise<Uint8Array>;
+	gzipSync?: Gzipper;
+	gunzipSync?: Gzipper;
 };
 
-export const [gzip_bytes, gunzip_bytes] = typeof CompressionStream > 't'
+export const [gzip_bytes, gunzip_bytes] = (typeof CompressionStream > 't'
 	? typeof Bun > 't'
 		? die('gzip (de)compression not available in current environment')
 		: [
@@ -23,4 +25,4 @@ export const [gzip_bytes, gunzip_bytes] = typeof CompressionStream > 't'
 	: [
 		(atu8: Uint8Array): Promise<Uint8Array> => transcompress_bytes_gzip(atu8, CompressionStream),
 		(atu8: Uint8Array): Promise<Uint8Array> => transcompress_bytes_gzip(atu8, DecompressionStream),
-	];
+	]) as [Gzipper, Gzipper];
