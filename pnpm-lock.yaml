@@ -16,8 +16,8 @@ importers:
         version: 15.14.0
     devDependencies:
       '@blake.regalia/tsconfig':
-        specifier: ^0.3.3
-        version: 0.3.3(typescript@5.7.3)
+        specifier: ^0.3.7
+        version: 0.3.7(typescript@5.7.3)
       '@jest/globals':
         specifier: ^29.7.0
         version: 29.7.0
@@ -238,8 +238,8 @@ packages:
       '@typescript-eslint/parser': '>=8'
       eslint: '>=9'
 
-  '@blake.regalia/tsconfig@0.3.3':
-    resolution: {integrity: sha512-UJ6l1KoiGwArhSimChp1mmnxrAuHBzU4Vm1cXCEm+j58gEwwEt3xEK8rO0HlBdp3NTJ1YY1kqcC/dMw6JCqbpQ==}
+  '@blake.regalia/tsconfig@0.3.7':
+    resolution: {integrity: sha512-xmQ0BrBybrIzmNCpPmJ+03WasvUb+57jUnzclTJHy5qMVXwrkjFV1HWMBGpjBbjIP3X9F/KZd+ZtDz+FddbwpA==}
     peerDependencies:
       typescript: '>=5'
 
@@ -560,6 +560,12 @@ packages:
 
   '@tsconfig/node16@1.0.4':
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
+
+  '@tsconfig/node22@22.0.0':
+    resolution: {integrity: sha512-twLQ77zevtxobBOD4ToAtVmuYrpeYUh3qh+TEp+08IWhpsrIflVHqQ1F1CiPxQGL7doCdBIOOCF+1Tm833faNg==}
+
+  '@tsconfig/svelte@5.0.4':
+    resolution: {integrity: sha512-BV9NplVgLmSi4mwKzD8BD/NQ8erOY/nUE/GpgWe2ckx+wIQF5RyRirn/QsSSCPeulVpc3RA/iJt6DpfTIZps0Q==}
 
   '@types/babel__core@7.20.5':
     resolution: {integrity: sha512-qoQprZvz5wQFJwMDqeseRXWv3rqMvhgpbXFfVyWhbx9X47POIA6i/+dXefEmZKoAgOaTdaIgNSMqMIU61yRyzA==}
@@ -2317,8 +2323,10 @@ snapshots:
       - ts-node
       - typescript
 
-  '@blake.regalia/tsconfig@0.3.3(typescript@5.7.3)':
+  '@blake.regalia/tsconfig@0.3.7(typescript@5.7.3)':
     dependencies:
+      '@tsconfig/node22': 22.0.0
+      '@tsconfig/svelte': 5.0.4
       typescript: 5.7.3
 
   '@cspotcode/source-map-support@0.8.1':
@@ -2700,6 +2708,10 @@ snapshots:
   '@tsconfig/node14@1.0.3': {}
 
   '@tsconfig/node16@1.0.4': {}
+
+  '@tsconfig/node22@22.0.0': {}
+
+  '@tsconfig/svelte@5.0.4': {}
 
   '@types/babel__core@7.20.5':
     dependencies:

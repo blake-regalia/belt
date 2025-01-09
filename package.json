@@ -26,7 +26,7 @@
     "test": "pnpm run build && bun test ./test/*.ts"
   },
   "devDependencies": {
-    "@blake.regalia/tsconfig": "^0.3.3",
+    "@blake.regalia/tsconfig": "^0.3.7",
     "@jest/globals": "^29.7.0",
     "@rollup/plugin-typescript": "^12.1.2",
     "@types/node": "^22.10.5",
