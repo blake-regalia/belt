@@ -1,15 +1,16 @@
 {
-	"extends": "@blake.regalia/tsconfig/tsconfig.node.json",
+	"extends": "./tsconfig.json",
 
 	"compilerOptions": {
 		"baseUrl": ".",
 		"outDir": "dist/mjs",
+		"declarationDir": "dist/mjs",
 
-		"declaration": true,
-		"declarationDir": "dist/mjs"
+		"moduleResolution": "node",
+		"module": "ES2022",
 	},
 
 	"include": [
 		"src/**/*.ts"
-	]
+	],
 }

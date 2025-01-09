@@ -3,13 +3,10 @@
 
 	"compilerOptions": {
 		"baseUrl": ".",
-		"outDir": "dist/min",
+		"outDir": "dist/void",
+		"declarationDir": "dist/void",
 
-		"declaration": true,
-		"declarationDir": "dist/min",
-
-		"types": ["node"],
-		"lib": ["ES2022"],
+		"moduleResolution": "node",
 	},
 
 	"include": [
@@ -17,8 +14,4 @@
 		"rollup.config.ts",
 		"test/**/*.ts",
 	],
-
-	"exclude": [
-		"eslint.config.mjs"
-	]
 }
