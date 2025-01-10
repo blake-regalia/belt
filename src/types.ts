@@ -36,7 +36,7 @@ export type Unsubtype<w_type> = w_type extends {[ES_TYPE]: infer w_actual}? w_ac
 export type Access<
 	g_struct extends {},
 	si_key extends string,
-// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+
 > = g_struct extends {
 	[si in si_key]: infer w_value
 }? w_value: undefined;
@@ -148,7 +148,7 @@ export type NaiveJsonString<
 /**
  * Root type for all objects considered to be parsed JSON objects
  */
-// eslint-disable-next-line @typescript-eslint/consistent-indexed-object-style
+
 export type JsonObject<w_inject extends any=never> = {
 	[k: string]: JsonValue<w_inject>;
 };
@@ -172,7 +172,7 @@ export type JsonPrimitiveNullable<w_inject extends any=never> =
 /**
  * JSON Array
  */
-export type JsonArray<w_inject extends any=never> = JsonValue<w_inject>[];
+export type JsonArray<w_inject extends any=never> = JsonValue<w_inject>[] | readonly JsonValue<w_inject>[];
 
 /**
  * All JSON value types
