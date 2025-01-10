@@ -369,7 +369,7 @@ export const filter_object = <
  */
 export const without_keys = <
 	h_object extends {},
-	as_keys extends string,
+	as_keys extends keyof h_object,
 >(h_object: h_object, a_keys: as_keys[]): A.Compute<Omit<h_object, as_keys>> => filter_object(h_object, si_key => !a_keys.includes(si_key as unknown as as_keys)) as any;
 
 
