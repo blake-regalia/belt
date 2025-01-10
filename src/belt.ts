@@ -1,8 +1,11 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
+import type {A} from 'ts-toolbelt';
+
 import type {NoInfer} from 'ts-toolbelt/out/Function/NoInfer';
 
 import type {InsteadOfAny, JsonObject, KeyValuable, StringKeysOf, Promisable, TypedArray, ValuesOf, AnyBoolish, IfBoolishTrue} from './types';
+
 
 /**
  * Utility nil buffer constant
@@ -264,7 +267,6 @@ export const assign: <
  */
 export const oda = create;
 
-
 /**
  * Typed alias to `Object.keys`
  */
@@ -357,6 +359,18 @@ export const filter_object = <
 	w_src: w_src,
 	f_filter: (si_key: z_keys, w_value: z_values, i_index: number) => AnyBoolish | null
 ): Record<z_keys, z_values | undefined> => from_entries<z_keys, z_values | undefined>(entries<w_src, z_keys, z_values>(w_src).filter(f_filter as () => boolean));
+
+
+/**
+ * Creates a new object by cloning the given one but omits the given keys
+ * @param h_object - source object
+ * @param a_keys - keys to omit from source object in new object
+ * @returns the cloned element without the given keys
+ */
+export const without_keys = <
+	h_object extends {},
+	as_keys extends string,
+>(h_object: h_object, a_keys: as_keys[]): A.Compute<Omit<h_object, as_keys>> => filter_object(h_object, si_key => !a_keys.includes(si_key as unknown as as_keys)) as any;
 
 
 /**
