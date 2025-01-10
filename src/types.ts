@@ -107,7 +107,7 @@ export type EntryKeysOf<w_type> = w_type extends ArrayLike<any>
 				: z_key extends symbol
 					? z_key
 					: never
-		: never;
+		: string;
 
 /**
  * Returns the values of the given type, extracting the values of an Array, or the properties of an Object.
