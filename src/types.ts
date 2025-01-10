@@ -95,22 +95,19 @@ export type Falsible<w_value> = Nilable<w_value> | 0 | false | '';
 export type KeyValuable = Record<PropertyKey, any> | ArrayLike<any>;
 
 /**
- * Returns the string keys of the given type, returning `${bigint}` for Array since its keys satisfy `${bigint}`
+ * Returns the keys of the given type as returned by `Object.entries(...)`, returning `${bigint}` for Array since its keys satisfy `${bigint}`
  */
-export type StringKeysOf<w_type> = w_type extends ArrayLike<any>
+export type EntryKeysOf<w_type> = w_type extends ArrayLike<any>
 	? `${bigint}`
 	: w_type extends Record<infer z_key, any>
 		? z_key extends string
 			? z_key
 			: z_key extends number
 				? `${number}`
-				: z_key extends bigint
-					? `${bigint}`
-					: z_key extends boolean | null | undefined
-						? `${z_key}`
-						: never
+				: z_key extends symbol
+					? z_key
+					: never
 		: never;
-
 
 /**
  * Returns the values of the given type, extracting the values of an Array, or the properties of an Object.
@@ -148,7 +145,6 @@ export type NaiveJsonString<
 /**
  * Root type for all objects considered to be parsed JSON objects
  */
-
 export type JsonObject<w_inject extends any=never> = {
 	[k: string]: JsonValue<w_inject>;
 };

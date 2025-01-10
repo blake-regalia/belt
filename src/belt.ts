@@ -4,7 +4,7 @@ import type {A} from 'ts-toolbelt';
 
 import type {NoInfer} from 'ts-toolbelt/out/Function/NoInfer';
 
-import type {InsteadOfAny, JsonObject, KeyValuable, StringKeysOf, Promisable, TypedArray, ValuesOf, AnyBoolish, IfBoolishTrue} from './types';
+import type {InsteadOfAny, JsonObject, KeyValuable, EntryKeysOf, Promisable, TypedArray, ValuesOf, AnyBoolish, IfBoolishTrue} from './types';
 
 
 /**
@@ -272,7 +272,7 @@ export const oda = create;
  */
 export const keys: <
 	w_src extends KeyValuable,
->(w_src: w_src) => StringKeysOf<w_src>[] = Object.keys;
+>(w_src: w_src) => EntryKeysOf<w_src>[] = Object.keys;
 
 /**
  * @deprecated Use {@link keys} instead
@@ -297,7 +297,7 @@ export const odv = create;
  */
 export const entries: <
 	w_src extends KeyValuable,
-	z_keys extends PropertyKey=StringKeysOf<w_src>,
+	z_keys extends PropertyKey=EntryKeysOf<w_src>,
 	z_values=ValuesOf<w_src>,
 >(w_src: w_src) => [z_keys, z_values][] = Object.entries;
 
@@ -329,7 +329,7 @@ export const ofe = from_entries;
 export const map_entries = <
 	w_out extends any,
 	w_src extends KeyValuable=KeyValuable,
-	z_keys extends StringKeysOf<w_src>=StringKeysOf<w_src>,
+	z_keys extends EntryKeysOf<w_src>=EntryKeysOf<w_src>,
 	z_values extends ValuesOf<w_src>=ValuesOf<w_src>,
 >(
 	w_src: w_src,
@@ -353,12 +353,12 @@ export const odem = map_entries;
  */
 export const filter_object = <
 	w_src extends KeyValuable=KeyValuable,
-	z_keys extends StringKeysOf<w_src>=StringKeysOf<w_src>,
+	z_keys extends EntryKeysOf<w_src>=EntryKeysOf<w_src>,
 	z_values extends ValuesOf<w_src>=ValuesOf<w_src>,
 >(
 	w_src: w_src,
-	f_filter: (si_key: z_keys, w_value: z_values, i_index: number) => AnyBoolish | null
-): Record<z_keys, z_values | undefined> => from_entries<z_keys, z_values | undefined>(entries<w_src, z_keys, z_values>(w_src).filter(f_filter as () => boolean));
+	f_filter: (a2_entry: [si_key: z_keys, w_value: z_values], i_index: number) => AnyBoolish | null
+): Record<z_keys, z_values | undefined> => from_entries<z_keys, z_values | undefined>(entries<w_src, z_keys, z_values>(w_src).filter(f_filter));
 
 
 /**
@@ -369,8 +369,8 @@ export const filter_object = <
  */
 export const without_keys = <
 	h_object extends {},
-	as_keys extends keyof h_object,
->(h_object: h_object, a_keys: as_keys[]): A.Compute<Omit<h_object, as_keys>> => filter_object(h_object, si_key => !a_keys.includes(si_key as unknown as as_keys)) as any;
+	z_keys extends EntryKeysOf<h_object>,
+>(h_object: h_object, a_keys: z_keys[]): A.Compute<Omit<h_object, z_keys>> => filter_object<h_object, z_keys>(h_object, ([si_key]) => !a_keys.includes(si_key)) as A.Compute<Omit<h_object, z_keys>>;
 
 
 /**
@@ -382,7 +382,7 @@ export const without_keys = <
 export const reduce_object = <
 	w_out extends any,
 	w_src extends KeyValuable=KeyValuable,
-	z_keys extends StringKeysOf<w_src>=StringKeysOf<w_src>,
+	z_keys extends EntryKeysOf<w_src>=EntryKeysOf<w_src>,
 	z_values extends ValuesOf<w_src>=ValuesOf<w_src>,
 >(
 	w_src: w_src,
@@ -406,7 +406,7 @@ export const oder = reduce_object;
 export const concat_entries = <
 	w_out extends any,
 	w_src extends KeyValuable=KeyValuable,
-	z_keys extends StringKeysOf<w_src>=StringKeysOf<w_src>,
+	z_keys extends EntryKeysOf<w_src>=EntryKeysOf<w_src>,
 	z_values extends ValuesOf<w_src>=ValuesOf<w_src>,
 	b_keep_undefs extends AnyBoolish=AnyBoolish,
 >(
@@ -442,7 +442,7 @@ export const oderac = concat_entries;
 export const flatten_entries = <
 	w_out extends any,
 	w_src extends KeyValuable=KeyValuable,
-	z_keys extends StringKeysOf<w_src>=StringKeysOf<w_src>,
+	z_keys extends EntryKeysOf<w_src>=EntryKeysOf<w_src>,
 	z_values extends ValuesOf<w_src>=ValuesOf<w_src>,
 >(
 	w_src: w_src,
@@ -469,7 +469,7 @@ export const oderaf = flatten_entries;
 export const transform_object = <
 	h_out extends object,
 	w_src extends KeyValuable=KeyValuable,
-	z_keys extends StringKeysOf<w_src>=StringKeysOf<w_src>,
+	z_keys extends EntryKeysOf<w_src>=EntryKeysOf<w_src>,
 	z_values extends ValuesOf<w_src>=ValuesOf<w_src>,
 >(
 	w_src: w_src,
@@ -495,7 +495,7 @@ export const oderom = transform_object;
 export const transform_values = <
 	w_out extends any,
 	w_src extends KeyValuable=KeyValuable,
-	z_keys extends StringKeysOf<w_src>=StringKeysOf<w_src>,
+	z_keys extends EntryKeysOf<w_src>=EntryKeysOf<w_src>,
 	z_values extends ValuesOf<w_src>=ValuesOf<w_src>,
 >(
 	w_src: w_src,
