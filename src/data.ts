@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const */
 import type {NaiveBase58, NaiveBase64, NaiveBase93, NaiveHexLower} from './strings';
-import type {JsonObject, JsonValue, NaiveJsonString, Nilable, TypedArray} from './types';
+import type {AnyBoolish, JsonObject, JsonValue, NaiveJsonString, Nilable, TypedArray} from './types';
 
 import {XG_8, is_array, is_dict_es, is_string, entries, from_entries, die, try_sync} from './belt.js';
 
@@ -116,7 +116,7 @@ export const parse_json: <
  */
 export const parse_json_safe = <
 	w_out extends JsonValue<void|undefined>=JsonValue,
-// eslint-disable-next-line @typescript-eslint/naming-convention, @typescript-eslint/no-unused-vars
+// eslint-disable-next-line @typescript-eslint/naming-convention
 >(sx_json: string): w_out | undefined => try_sync<w_out, SyntaxError>(_ => parse_json<w_out>(sx_json))[0];
 
 /**
@@ -346,9 +346,11 @@ export const base64_to_text = (sx_buffer: string): string => bytes_to_text(base6
 /**
  * UTF-8 encodes the given text, then converts it to a base64-encoded string.
  * @param s_text text to encode
+ * @param b_url_safe produce a URL-safe base64 encoding
  * @returns output base64-encoded string
  */
-export const text_to_base64 = (s_text: string): NaiveBase64 => bytes_to_base64(text_to_bytes(s_text));
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export const text_to_base64 = (s_text: string, b_url_safe?: AnyBoolish): NaiveBase64 => bytes_to_base64(text_to_bytes(s_text), b_url_safe);
 
 
 /**
@@ -563,9 +565,11 @@ const SX_CHARS_BASE64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 /**
  * Converts the given buffer to a base64-encoded string.
  * @param atu8_buffer input buffer
+ * @param b_url_safe produce a URL-safe base64 encoding
  * @returns output base64-encoded string
  */
-export const bytes_to_base64 = (atu8_buffer: Uint8Array): NaiveBase64 => {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export const bytes_to_base64 = (atu8_buffer: Uint8Array, b_url_safe: AnyBoolish=false): NaiveBase64 => {
 	let s_out = '';
 	const nb_buffer = atu8_buffer.byteLength;
 	const nb_remainder = nb_buffer % 3;
@@ -601,7 +605,7 @@ export const bytes_to_base64 = (atu8_buffer: Uint8Array): NaiveBase64 => {
 		// Set the 4 least significant bits to zero
 		xb_b = (xn_chunk & 3) << 4; // 3   = 2^2 - 1
 
-		s_out += SX_CHARS_BASE64[xb_a] + SX_CHARS_BASE64[xb_b] + '==';
+		s_out += SX_CHARS_BASE64[xb_a] + SX_CHARS_BASE64[xb_b] + (b_url_safe? '': '==');
 	}
 	else if(2 === nb_remainder) {
 		xn_chunk = (atu8_buffer[nb_main] << 8) | atu8_buffer[nb_main + 1];
@@ -612,10 +616,10 @@ export const bytes_to_base64 = (atu8_buffer: Uint8Array): NaiveBase64 => {
 		// Set the 2 least significant bits to zero
 		xb_c = (xn_chunk & 15) << 2; // 15    = 2^4 - 1
 
-		s_out += SX_CHARS_BASE64[xb_a] + SX_CHARS_BASE64[xb_b] + SX_CHARS_BASE64[xb_c] + '=';
+		s_out += SX_CHARS_BASE64[xb_a] + SX_CHARS_BASE64[xb_b] + SX_CHARS_BASE64[xb_c] + (b_url_safe? '': '=');
 	}
 
-	return s_out as NaiveBase64;
+	return (b_url_safe? s_out.replace(/[+/]/g, s => '+' === s? '-': '_'): s_out) as NaiveBase64;
 };
 /* eslint-enable */
 
@@ -626,8 +630,8 @@ export const bytes_to_base64 = (atu8_buffer: Uint8Array): NaiveBase64 => {
  * @returns output buffer
  */
 export const base64_to_bytes = (sb64_data: string): Uint8Array => {
-	// remove padding from string
-	sb64_data = sb64_data.replace(/=+$/, '');
+	// remove padding from string and normalize from URL-safe variant
+	sb64_data = sb64_data.replace(/=+$/, '').replace(/[-_]/g, s => '-' === s? '+': '_' === s? '/': s);
 
 	// a buffer to store decoded sextets
 	let xb_work = 0;
