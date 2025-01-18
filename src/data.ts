@@ -92,9 +92,10 @@ export const try_sync_safe = <a_args extends unknown[], w_return>(f_attempt: (..
  */
 export const stringify_json: <
 	w_string extends string=NaiveJsonString,
+	f_replacer extends Nilable<(this: any, si_key: string, z_value: any) => JsonValue<undefined>>=null,
 >(
-	w_json: JsonValue,
-	f_replacer?: Nilable<(this: any, si_key: string, z_value: any) => JsonValue<undefined>>,
+	w_json: f_replacer extends Function? any: JsonValue,
+	f_replacer?: f_replacer,
 	z_space?: Parameters<typeof JSON.stringify>[2],
 ) => w_string = JSON.stringify;
 
@@ -486,7 +487,7 @@ export const arrays_zip = <a_out extends ArrayLike<number> & {map(f_callback: (n
 	? a_a.map((n, i) => f_apply(n, a_b[i]))
 	// assert equal-length arrays
 	: die('Arrays must have identical length');
-/* eslint-enable */
+/* eslint-enable @typescript-eslint/naming-convention */
 
 
 /**
@@ -571,9 +572,9 @@ const SX_CHARS_BASE64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz012
 // eslint-disable-next-line @typescript-eslint/naming-convention
 export const bytes_to_base64 = (atu8_buffer: Uint8Array, b_url_safe: AnyBoolish=false): NaiveBase64 => {
 	let s_out = '';
-	const nb_buffer = atu8_buffer.byteLength;
-	const nb_remainder = nb_buffer % 3;
-	const nb_main = nb_buffer - nb_remainder;
+	let nb_buffer = atu8_buffer.byteLength;
+	let nb_remainder = nb_buffer % 3;
+	let nb_main = nb_buffer - nb_remainder;
 
 	let xb_a = 0;
 	let xb_b = 0;
@@ -621,7 +622,6 @@ export const bytes_to_base64 = (atu8_buffer: Uint8Array, b_url_safe: AnyBoolish=
 
 	return (b_url_safe? s_out.replace(/[+/]/g, s => '+' === s? '-': '_'): s_out) as NaiveBase64;
 };
-/* eslint-enable */
 
 
 /**
@@ -794,7 +794,7 @@ const SX_CHARS_BASE58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvw
 const A_CHARS_BASE58 = /*#__PURE__*/(() => {
 	const a_out = Array(256).fill(-1);
 	let i_char = 0;
-	// eslint-disable-next-line prefer-const
+
 	for(let s_char of SX_CHARS_BASE58) {
 		a_out[s_char.charCodeAt(0)] = i_char++;
 	}
