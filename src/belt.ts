@@ -741,7 +741,7 @@ export const die = (s_msg: string, w_data?: unknown): never => {
 export const try_sync = <
 	w_return,
 	w_error,
-	a_args extends any[],
+	a_args extends any[]=[],
 >(f_try: (...a_args: a_args) => w_return, ...a_args: a_args): [w_return, 0] | [undefined, InsteadOfAny<w_error, unknown>] => {
 	try {
 		return [f_try(...a_args), 0];
@@ -762,7 +762,7 @@ export const try_sync = <
 export const try_async = async<
 	w_error,
 	w_return,
-	a_args extends any[],
+	a_args extends any[]=[],
 >(f_try: (...a_args: a_args) => Promisable<w_return>, ...a_args: a_args): Promise<[w_return, 0] | [undefined, w_error]> => {
 	try {
 		return [await f_try(...a_args), 0];

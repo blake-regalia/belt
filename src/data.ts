@@ -81,13 +81,6 @@ type Uint8ArrayConstructorParams =
 
 
 /**
- * Creates a new function that wraps the given function in a `try_sync` and returns the result without throwing
- * @param f_attempt - the function to attempt
- * @returns 
- */
-export const try_sync_safe = <a_args extends unknown[], w_return>(f_attempt: (...a_args: a_args) => w_return) => (...a_args: a_args) => try_sync(_ => f_attempt(...a_args))[0];
-
-/**
  * Typed alias to `JSON.stringify`
  */
 export const stringify_json: <
@@ -118,7 +111,7 @@ export const parse_json: <
 export const parse_json_safe = <
 	w_out extends JsonValue<void|undefined>=JsonValue,
 // eslint-disable-next-line @typescript-eslint/naming-convention
->(sx_json: string): w_out | undefined => try_sync<w_out, SyntaxError>(_ => parse_json<w_out>(sx_json))[0];
+>(sx_json: string): w_out | undefined => try_sync<w_out, SyntaxError>((_?: never) => parse_json<w_out>(sx_json))[0];
 
 /**
  * @deprecated Use {@link parse_json_safe} instead.
