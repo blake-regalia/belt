@@ -733,6 +733,7 @@ export const die = (s_msg: string, w_data?: unknown): never => {
 /**
  * Synchronously try the given callback, returning a tuple of the result or error
  * @param f_try - synchronous callback function
+ * @param a_args - rest args to apply to `f_try`
  * @returns a tuple where:
  *   - 0: the value returned by callback function if it did not throw, otherwise `undefined`
  *   - 1: the error thrown by the callback function, if any, otherwise `undefined`
@@ -740,9 +741,10 @@ export const die = (s_msg: string, w_data?: unknown): never => {
 export const try_sync = <
 	w_return,
 	w_error,
->(f_try: (_?: void) => w_return): [w_return, 0] | [undefined, InsteadOfAny<w_error, unknown>] => {
+	a_args extends any[],
+>(f_try: (...a_args: a_args) => w_return, ...a_args: a_args): [w_return, 0] | [undefined, InsteadOfAny<w_error, unknown>] => {
 	try {
-		return [f_try(), 0];
+		return [f_try(...a_args), 0];
 	}
 	catch(e_fail) {
 		return [__UNDEFINED, e_fail as w_error];
@@ -752,13 +754,18 @@ export const try_sync = <
 /**
  * Asynchronously try the given callback, returning a tuple of the result or error
  * @param f_try - asynchronous callback function
+ * @param a_args - rest args to apply to `f_try`
  * @returns a tuple where:
  *   - 0: the awaited value returned by callback function if it did not throw, otherwise `undefined`
  *   - 1: the error thrown by the callback function, if any, otherwise `undefined`
  */
-export const try_async = async<w_error, w_return>(f_try: () => Promisable<w_return>): Promise<[w_return, 0] | [undefined, w_error]> => {
+export const try_async = async<
+	w_error,
+	w_return,
+	a_args extends any[],
+>(f_try: (...a_args: a_args) => Promisable<w_return>, ...a_args: a_args): Promise<[w_return, 0] | [undefined, w_error]> => {
 	try {
-		return [await f_try(), 0];
+		return [await f_try(...a_args), 0];
 	}
 	catch(e_fail) {
 		return [__UNDEFINED, e_fail as w_error];
