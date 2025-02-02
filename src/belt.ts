@@ -115,7 +115,7 @@ export const narrow = <w_to>(w_value: any): w_value is w_to => !0;
  * @param f_action - function to call
  * @returns return value from `f_action(w_value)`
  */
-export const supply = <w_value, w_return>(w_value: w_value, f_action: (w_use: w_value) => any): w_return => f_action(w_value);
+export const supply = <w_value, w_return>(w_value: w_value, f_action: (w_use: w_value) => w_return): w_return => f_action(w_value);
 
 
 /**
