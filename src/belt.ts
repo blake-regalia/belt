@@ -121,7 +121,7 @@ export const supply = <w_value, w_return>(w_value: w_value, f_action: (w_use: w_
 /**
  * Equivalent to testing `'undefined' === typeof thing`
  */
-export const is_undefined = (z: unknown): z is undefined => typeof z > 't';
+export const is_undefined = (z: unknown): z is undefined | void => typeof z > 't';
 
 /**
  * Equivalent to testing `'boolean' === typeof thing`
