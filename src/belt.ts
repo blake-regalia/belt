@@ -118,6 +118,8 @@ export const narrow = <w_to>(w_value: any): w_value is w_to => !0;
 export const supply = <w_value, w_return>(w_value: w_value, f_action: (w_use: w_value) => w_return): w_return => f_action(w_value);
 
 
+// export const type_of = (z: unknown): string => typeof z;
+
 /**
  * Equivalent to testing `'undefined' === typeof thing`
  */
@@ -158,6 +160,11 @@ export const is_object = (z: unknown): z is object => (typeof z)[1] < 'c';
  */
 export const is_function = (z: unknown): z is Function => (typeof z)[4] > 's';
 
+
+/**
+ * Equivalent to testing `['boolean', 'number', 'string'].includes(typeof thing)`
+ */
+export const is_primitive = (z: unknown): z is boolean | number | string => 'out'.includes((typeof z).at(-5)!);
 
 /**
  * Simple test for whether a value is a Uint8Array or not
