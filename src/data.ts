@@ -190,7 +190,7 @@ export const sha256 = async(atu8_data: Uint8Array): Promise<Uint8Array> => bytes
 export const sha256d = async(atu8_data: Uint8Array): Promise<Uint8Array> => {
 	const atu8_1 = await sha256(atu8_data);
 	const atu8_2 = await sha256(atu8_1);
-	zero_out(atu8_1);
+	zeroize(atu8_1);
 	return atu8_2;
 };
 
@@ -279,7 +279,7 @@ export const hkdf = async(
 /**
  * Wipe the contents of a buffer so that sensitive data does not outlive garbage collection.
  */
-export const zero_out = (atu8_data: number[] | Uint8Array | Uint16Array): void => {
+export const zeroize = (atu8_data: number[] | Uint8Array | Uint16Array): void => {
 	// overwrite the contents
 	atu8_data.fill(0);
 
@@ -287,6 +287,11 @@ export const zero_out = (atu8_data: number[] | Uint8Array | Uint16Array): void =
 	// @ts-expect-error signature IS compatible with both types
 	if(0 !== atu8_data.reduce((c_sum: number, x_value: number) => c_sum + x_value, 0)) die('Failed to zero out sensitive memory region');
 };
+
+/**
+ * @deprecated Use {@link zeroize} instead
+ */
+export const zero_out = zeroize;
 
 
 export const encode_length_prefix_u16 = (atu8_data: Uint8Array): Uint8Array => {
