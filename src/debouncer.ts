@@ -76,9 +76,12 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		k_this.c = 0;
 
 		// clear timeouts
-		clearTimeout(k_this.S=__UNDEFINED);
-		clearTimeout(k_this.D=__UNDEFINED);
-		clearTimeout(k_this.I=__UNDEFINED);
+		clearTimeout(k_this.S);
+		clearTimeout(k_this.D);
+		clearTimeout(k_this.I);
+
+		// reset timeouts
+		k_this.S = k_this.D = k_this.I = __UNDEFINED;
 
 		// execution wasn't cancelled
 		if(!xc_cancel) {
@@ -126,7 +129,13 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 			if(!c_calls) if(is_finite(k_this.s)) k_this.S = setTimeout(f_t, k_this.s);
 
 			// set a timeout to execute once the delay passes
-			if(is_finite(k_this.d)) k_this.D = setTimeout(f_t, k_this.d);
+			if(is_finite(k_this.d)) {
+				// cancel previous timeout
+				clearTimeout(k_this.D);
+
+				// set new timeout
+				k_this.D = setTimeout(f_t, k_this.d);
+			}
 		}
 	},
 
