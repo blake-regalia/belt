@@ -869,7 +869,7 @@ export const crypto_random_bytes = (nb_len=32): Uint8Array => crypto.getRandomVa
 /**
  * Cryptographically strong random number in the range [0, 1)
  */
-export const crypto_random_unit_double = (): number => crypto_random_bytes(1)[0] / (2 ** 32);
+export const crypto_random_unit_double = (): number => crypto.getRandomValues(new Uint32Array(1))[0] / (2 ** 32);
 
 /**
  * @deprecated Replace with {@link crypto_random_unit_double}
