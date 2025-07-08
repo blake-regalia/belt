@@ -1,4 +1,4 @@
-import type {A, O, U} from 'ts-toolbelt';
+import type {A, U} from 'ts-toolbelt';
 
 // would much prefer to use Symbol here, but TypeScript treats them as different types
 // if dependency versions don't align
@@ -238,6 +238,7 @@ declare global {
 
 		stringify<
 			s_subtype extends string,
+		// eslint-disable-next-line @typescript-eslint/unified-signatures
 		>(value: any, replacer?: (number | string)[] | null, space?: string | number): NaiveJsonString<s_subtype>;
 	}
 

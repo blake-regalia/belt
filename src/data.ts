@@ -156,7 +156,7 @@ export const canonicalize_json = <
  * @param a_args 
  * @returns 
  */
-export const bytes = (...a_args: Uint8ArrayConstructorParams): Uint8Array => new Uint8Array(...a_args as [number]);
+export const bytes = <w_buffer extends ArrayBufferLike=ArrayBufferLike>(...a_args: Uint8ArrayConstructorParams): Uint8Array<w_buffer> => new Uint8Array(...a_args as [number]) as Uint8Array<w_buffer>;
 
 
 /**
@@ -179,7 +179,7 @@ export const dataview_from = (at_src: TypedArray): DataView => dataview(at_src.b
  * @param atu8_data data to hash
  * @returns the hash digest
  */
-export const sha256 = async(atu8_data: Uint8Array): Promise<Uint8Array> => bytes(await crypto.subtle.digest(SI_HASH_ALGORITHM_SHA256, atu8_data));
+export const sha256 = async(atu8_data: Uint8Array<ArrayBuffer>): Promise<Uint8Array<ArrayBuffer>> => bytes(await crypto.subtle.digest(SI_HASH_ALGORITHM_SHA256, atu8_data));
 
 
 /**
@@ -187,7 +187,7 @@ export const sha256 = async(atu8_data: Uint8Array): Promise<Uint8Array> => bytes
  * @param atu8_data data to hash
  * @returns the hash digest
  */
-export const sha256d = async(atu8_data: Uint8Array): Promise<Uint8Array> => {
+export const sha256d = async(atu8_data: Uint8Array<ArrayBuffer>): Promise<Uint8Array> => {
 	const atu8_1 = await sha256(atu8_data);
 	const atu8_2 = await sha256(atu8_1);
 	zeroize(atu8_1);
@@ -200,7 +200,7 @@ export const sha256d = async(atu8_data: Uint8Array): Promise<Uint8Array> => {
  * @param atu8_data data to hash
  * @returns the hash digest
  */
-export const sha384 = async(atu8_data: Uint8Array): Promise<Uint8Array> => bytes(await crypto.subtle.digest(SI_HASH_ALGORITHM_SHA384, atu8_data));
+export const sha384 = async(atu8_data: Uint8Array<ArrayBuffer>): Promise<Uint8Array<ArrayBuffer>> => bytes(await crypto.subtle.digest(SI_HASH_ALGORITHM_SHA384, atu8_data));
 
 
 /**
@@ -208,7 +208,7 @@ export const sha384 = async(atu8_data: Uint8Array): Promise<Uint8Array> => bytes
  * @param atu8_data data to hash
  * @returns the hash digest
  */
-export const sha512 = async(atu8_data: Uint8Array): Promise<Uint8Array> => bytes(await crypto.subtle.digest(SI_HASH_ALGORITHM_SHA512, atu8_data));
+export const sha512 = async(atu8_data: Uint8Array<ArrayBuffer>): Promise<Uint8Array<ArrayBuffer>> => bytes(await crypto.subtle.digest(SI_HASH_ALGORITHM_SHA512, atu8_data));
 
 
 /**
@@ -219,8 +219,9 @@ export const sha512 = async(atu8_data: Uint8Array): Promise<Uint8Array> => bytes
  * @returns the imported {@link CryptoKey}
  */
 export const import_key = (
-	atu8_sk: Uint8Array,
+	atu8_sk: Uint8Array<ArrayBuffer>,
 	z_algo: Parameters<SubtleCrypto['importKey']>[2],
+	// eslint-disable-next-line @typescript-eslint/naming-convention
 	da_usages: Parameters<SubtleCrypto['importKey']>[4],
 	b_extractable=false
 ): Promise<CryptoKey> => crypto.subtle.importKey('raw', atu8_sk, z_algo, b_extractable, da_usages);
@@ -233,10 +234,10 @@ export const import_key = (
  * @returns HMAC signature
  */
 export const hmac = async(
-	atu8_sk: Uint8Array,
-	atu8_message: Uint8Array,
+	atu8_sk: Uint8Array<ArrayBuffer>,
+	atu8_message: Uint8Array<ArrayBuffer>,
 	si_algo: 'SHA-256'|'SHA-384'|'SHA-512'=SI_HASH_ALGORITHM_SHA256
-): Promise<Uint8Array> => {
+): Promise<Uint8Array<ArrayBuffer>> => {
 	// import signing private key
 	const dk_sign = await import_key(atu8_sk, {
 		name: 'HMAC',
@@ -257,12 +258,12 @@ export const hmac = async(
  * @param si_algo - hashing algorithm to use
  */
 export const hkdf = async(
-	atu8_ikm: Uint8Array,
+	atu8_ikm: Uint8Array<ArrayBuffer>,
 	ni_bits: number,
-	atu8_salt: Uint8Array,
-	atu8_info: Uint8Array=bytes(),
+	atu8_salt: Uint8Array<ArrayBuffer>,
+	atu8_info: Uint8Array<ArrayBuffer>=bytes(),
 	si_algo: 'SHA-256'|'SHA-384'|'SHA-512'=SI_HASH_ALGORITHM_SHA256
-): Promise<Uint8Array> => {
+): Promise<Uint8Array<ArrayBuffer>> => {
 	// import deriving key
 	const dk_derive = await import_key(atu8_ikm, 'HKDF', ['deriveBits']);
 

@@ -602,7 +602,6 @@ export const interjoin = <
 		a_output.push(w_insert);
 	}
 
-	// eslint-disable-next-line @typescript-eslint/no-unnecessary-type-assertion
 	if(a_input.length) a_output.push(a_input.at(-1)!);
 
 	return a_output;
