@@ -1,4 +1,4 @@
-/* eslint-disable prefer-const, no-sequences, @typescript-eslint/naming-convention */
+/* eslint-disable prefer-const, @typescript-eslint/naming-convention */
 
 import {__UNDEFINED} from './belt.js';
 import {bytes_to_biguint_be, bytes_to_text, dataview} from './data.js';

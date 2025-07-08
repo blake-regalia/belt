@@ -71,11 +71,8 @@ const G_PROTOTYPE: MutexPool = {
 					// remove from queue and reuse this mutex for next task
 					void a_queued.shift()!();
 				}
-				// no queued tasks
-				else {
-					// return mutex to pool
-					this.a++;
-
+				// no queued tasks; return mutex to pool; back to stasis
+				else if(++k_this.a === k_this.c) {
 					// notify listeners
 					let f_notify;
 
