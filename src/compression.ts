@@ -7,7 +7,7 @@ export const stream_to_bytes = async(d_stream: ReadableStream): Promise<Uint8Arr
 
 const transcompress_bytes_gzip = (atu8: Uint8Array<ArrayBuffer>, d_stream: typeof CompressionStream | typeof DecompressionStream) => stream_to_bytes(pipe_bytes_through(atu8, new d_stream('gzip')));
 
-type Gzipper = (atu8: Uint8Array) => Promise<Uint8Array>;
+type Gzipper = (atu8: Uint8Array) => Promise<Uint8Array<ArrayBuffer>>;
 
 // eslint-disable-next-line @typescript-eslint/naming-convention
 declare const Bun: {
