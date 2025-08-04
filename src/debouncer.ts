@@ -54,6 +54,12 @@ type DebouncerPrivate = {
 	// current number of hits
 	c: number;
 
+	// count timeout
+	C: Timeout;
+
+	// busy flag
+	b: 0 | 1;
+
 	// maximum number of hits before executing
 	n: number;
 
@@ -62,6 +68,9 @@ type DebouncerPrivate = {
 };
 
 type DebouncerInternal = Debouncer & DebouncerPrivate;
+
+// alias clearTimeout
+const clear = clearTimeout;
 
 const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 	// private termination function
@@ -76,20 +85,27 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		k_this.c = 0;
 
 		// clear timeouts
-		clearTimeout(k_this.S);
-		clearTimeout(k_this.D);
-		clearTimeout(k_this.I);
+		clear(k_this.S);
+		clear(k_this.D);
+		clear(k_this.I);
+		clear(k_this.C);
 
 		// reset timeouts
-		k_this.S = k_this.D = k_this.I = __UNDEFINED;
+		k_this.S = k_this.D = k_this.I = k_this.C = __UNDEFINED;
 
 		// execution wasn't cancelled
 		if(!xc_cancel) {
+			// mark as busy
+			k_this.b = 1;
+
 			// get and clear queued 'clears' hooks
 			const a_cleared = k_this.r.splice(0);
 
 			// execute
 			await k_this.f();
+
+			// mark as not busy
+			k_this.b = 0;
 
 			// call hooks with number of hits
 			a_cleared.map(f => f(c_hits));
@@ -103,7 +119,7 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 	 * "Hit" the debouncer, queueing execution if not already queued
 	 * @param this 
 	 */
-	hit(this: DebouncerInternal) {
+	async hit(this: DebouncerInternal): Promise<void> {
 		// ref this
 		let k_this = this;
 
@@ -116,22 +132,29 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		// incremenet call count
 		let c_calls = k_this.c++;
 
+		// wrap termination function for passing to timeout
+		const f_t = () => k_this.t();
+
 		// reached call count; execute
 		if(c_calls+1 >= k_this.n) {
-			void k_this.t();
+			// busy
+			if(k_this.b) await k_this.clears();
+
+			// cancel previous timeout
+			clear(k_this.C);
+
+			// set a timeout to execute after current tick
+			k_this.C = setTimeout(f_t, 0);
 		}
 		// not yet reached
 		else {
-			// wrap termination function for passing to timeout
-			const f_t = () => k_this.t();
-
 			// initial hit; set a timeout to execute once the max time span passes
 			if(!c_calls) if(is_finite(k_this.s)) k_this.S = setTimeout(f_t, k_this.s);
 
 			// set a timeout to execute once the delay passes
 			if(is_finite(k_this.d)) {
 				// cancel previous timeout
-				clearTimeout(k_this.D);
+				clear(k_this.D);
 
 				// set new timeout
 				k_this.D = setTimeout(f_t, k_this.d);
@@ -195,6 +218,7 @@ export const Debouncer = (
 		n: n_calls,
 
 		// fields
+		b: 0,
 		c: 0,
 		r: [],
 	} satisfies Omit<DebouncerPrivate, O.SelectKeys<DebouncerPrivate, undefined> | 't'>
