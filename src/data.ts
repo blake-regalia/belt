@@ -158,7 +158,7 @@ export const canonicalize_json = <
  * @param a_args 
  * @returns 
  */
-export const bytes = <w_buffer extends ArrayBufferLike=ArrayBufferLike>(...a_args: Uint8ArrayConstructorParams): Uint8Array<w_buffer> => new Uint8Array(...a_args as [number]) as Uint8Array<w_buffer>;
+export const bytes = <w_buffer extends ArrayBufferLike=ArrayBuffer>(...a_args: Uint8ArrayConstructorParams): Uint8Array<w_buffer> => new Uint8Array(...a_args as [number]) as Uint8Array<w_buffer>;
 
 
 /**
@@ -413,7 +413,7 @@ export const biguint_to_bytes_be = (xg_value: bigint, nb_size=32): Uint8Array<Ar
 		xg_value >>= XG_8;
 	}
 
-	return atu8_out as Uint8Array<ArrayBuffer>;
+	return atu8_out;
 };
 
 /**
@@ -496,7 +496,7 @@ export const arrays_zip = <a_out extends ArrayLike<number> & {map(f_callback: (n
  * @param a_buffers the data to concatenate in order
  * @returns the concatenated output Uint8Array
  */
-export const concat = <w_buffer extends ArrayBufferLike>(a_buffers: readonly Uint8Array<w_buffer>[]): Uint8Array<w_buffer> => {
+export const concat = (a_buffers: readonly Uint8Array[]): Uint8Array<ArrayBuffer> => {
 	const nb_out = a_buffers.reduce((c_bytes, atu8_each) => c_bytes + atu8_each.byteLength, 0);
 	const atu8_out = bytes(nb_out);
 	let ib_write = 0;
@@ -505,7 +505,7 @@ export const concat = <w_buffer extends ArrayBufferLike>(a_buffers: readonly Uin
 		ib_write += atu8_each.byteLength;
 	}
 
-	return atu8_out as Uint8Array<w_buffer>;
+	return atu8_out;
 };
 
 
@@ -515,11 +515,11 @@ export const concat = <w_buffer extends ArrayBufferLike>(a_buffers: readonly Uin
  * @param atu8_buffer_b right side
  * @returns the concatenated output Uint8Array
  */
-export const concat2 = <w_buffer extends ArrayBufferLike>(atu8_a: Uint8Array<w_buffer>, atu8_b: Uint8Array<w_buffer>): Uint8Array<w_buffer> => {
+export const concat2 = (atu8_a: Uint8Array<ArrayBuffer>, atu8_b: Uint8Array<ArrayBuffer>): Uint8Array<ArrayBuffer> => {
 	const atu8_out = bytes(atu8_a.length + atu8_b.length);
 	atu8_out.set(atu8_a);
 	atu8_out.set(atu8_b, atu8_a.length);
-	return atu8_out as Uint8Array<w_buffer>;
+	return atu8_out;
 };
 
 
@@ -680,7 +680,7 @@ export const string8_to_bytes = (sx_buffer: string): Uint8Array<ArrayBuffer> => 
 		atu8_buffer[i_read] = sx_buffer.charCodeAt(i_read);
 	}
 
-	return atu8_buffer as Uint8Array<ArrayBuffer>;
+	return atu8_buffer;
 };
 
 
