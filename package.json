@@ -8,11 +8,11 @@
     "email": "blake.regalia@gmail.com"
   },
   "type": "module",
-  "main": "dist/cjs/main.js",
+  "main": "dist/cjs/main.cjs",
   "module": "dist/mjs/main.js",
   "types": "dist/mjs/main.d.ts",
   "exports": {
-    "require": "./dist/cjs/main.js",
+    "require": "./dist/cjs/main.cjs",
     "import": "./dist/mjs/main.js"
   },
   "files": [
@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "build:mjs": "tsc -p tsconfig.mjs.json",
-    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json && bash scripts/cjs-fix.sh",
     "build": "pnpm run build:mjs && pnpm run build:cjs",
     "bundle": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "test": "pnpm run build && bun test ./test/*.ts"

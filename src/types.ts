@@ -8,6 +8,16 @@ export const ES_TYPE = '__ES_TYPE';
 /* eslint-enable */
 
 /**
+ * Alias for `Uint8Array<ArrayBuffer>`
+ */
+export type BytesLocal = Uint8Array<ArrayBuffer>;
+
+/**
+ * Alias for `Uint8Array<SharedArrayBuffer>`
+ */
+export type BytesShared = Uint8Array<SharedArrayBuffer>;
+
+/**
  * Test whether a given type value is the `any` type. Returns `1` if true, `0` otherwise
  */
 export type IsLiteralAny<w_test> = 0 extends (1 & w_test)? 1 : 0;

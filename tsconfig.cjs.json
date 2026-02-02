@@ -5,6 +5,7 @@
 		"baseUrl": ".",
 		"outDir": "dist/cjs",
 		"declarationDir": "dist/cjs",
+		"module": "commonjs"
 	},
 
 	"include": [
