@@ -110,13 +110,14 @@ export type KeyValuable = Record<PropertyKey, any> | ArrayLike<any>;
 export type EntryKeysOf<w_type> = w_type extends ArrayLike<any>
 	? `${bigint}`
 	: w_type extends Record<infer z_key, any>
+		// preserve string keys
 		? z_key extends string
 			? z_key
+			// stringify number keys
 			: z_key extends number
 				? `${number}`
-				: z_key extends symbol
-					? z_key
-					: never
+				// Object.entries omits symbol keys
+				: never
 		: string;
 
 /**
@@ -186,8 +187,7 @@ export type JsonArray<w_inject extends any=never> = JsonValue<w_inject>[] | read
 export type JsonValue<w_inject extends any=never> =
 	| JsonPrimitiveNullable<w_inject>
 	| JsonArray<w_inject>
-	| JsonObject<w_inject>
-	| Arrayable<undefined>;
+	| JsonObject<w_inject>;
 
 /**
  * Removes JSON interfaces from a type
@@ -198,7 +198,7 @@ export type RemoveJsonInterfaces<w_type> = Exclude<A.Compute<Exclude<Extract<w_t
  * Reinterprets the given type as being JSON-compatible
  */
 export type AsJson<
-	z_test extends JsonValue<w_inject> | {} | {}[],
+	z_test,
 	w_inject extends unknown=never,
 > = z_test extends JsonValue<w_inject>? z_test
 	: z_test extends Array<infer w_type>
@@ -237,7 +237,7 @@ declare global {
 		 */
 		stringify<
 			s_subtype extends string,
-		>(value: any, replacer?: Nilable<(this: any, key: string, value: any) => any>, space?: string | number): NaiveJsonString<s_subtype>;
+		>(value: any, replacer?: Nilable<(this: any, key: string, value: any) => any>, space?: string | number): NaiveJsonString<s_subtype> | undefined;
 
 		/**
 		 * Converts a JavaScript value to a JavaScript Object Notation (JSON) string.
@@ -248,8 +248,8 @@ declare global {
 
 		stringify<
 			s_subtype extends string,
-		// eslint-disable-next-line @typescript-eslint/unified-signatures
-		>(value: any, replacer?: (number | string)[] | null, space?: string | number): NaiveJsonString<s_subtype>;
+			// eslint-disable-next-line @typescript-eslint/unified-signatures
+		>(value: any, replacer?: (number | string)[] | null, space?: string | number): NaiveJsonString<s_subtype> | undefined;
 	}
 
 	// interface ObjectConstructor {

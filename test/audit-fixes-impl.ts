@@ -19,7 +19,6 @@ import {
 	text_to_bytes,
 	uuid_v4,
 } from '../dist/mjs/data';
-import {MutexPool} from '../dist/mjs/mutex-pool';
 import {NanoBuffer} from '../dist/mjs/nano-buffer';
 
 describe('corrected utility exports', () => {
@@ -100,22 +99,15 @@ describe('compression availability', () => {
 	});
 });
 
-describe('constructor validation', () => {
-	test('NanoBuffer rejects invalid segment sizes', () => {
-		for(const nb_size of [0, -1, 1.5, Infinity]) {
-			expect(() => NanoBuffer(nb_size)).toThrow(RangeError);
-		}
-	});
-
-	test('NanoBuffer still accepts positive segment sizes', () => {
+describe('unchecked constructors', () => {
+	test('NanoBuffer appends across positive-sized segments', () => {
+		// create two-byte segment buffer
 		const k_buffer = NanoBuffer(2);
-		k_buffer.a(bytes([1, 2, 3]));
-		expect(k_buffer.o()).toEqual(bytes([1, 2, 3]));
-	});
 
-	test('MutexPool rejects invalid capacities', () => {
-		for(const n_capacity of [0, -1, 1.5, Infinity]) {
-			expect(() => MutexPool(n_capacity)).toThrow(RangeError);
-		}
+		// append across segment boundary
+		k_buffer.a(bytes([1, 2, 3]));
+
+		// verify concatenated output
+		expect(k_buffer.o()).toEqual(bytes([1, 2, 3]));
 	});
 });

@@ -1,7 +1,7 @@
 /* eslint-disable prefer-const, @typescript-eslint/naming-convention */
 
 import {__UNDEFINED} from './belt.js';
-import {bytes_to_biguint_be, bytes_to_text, dataview} from './data.js';
+import {bytes_to_biguint_be, bytes_to_text, dataview_from} from './data.js';
 
 /**
  * Primitive CBOR datatype
@@ -35,61 +35,88 @@ export const cbor_decode_trivial = <
 	w_item: w_expected,
 	ib_read: number,
 ] => {
+	// read initial byte
 	let xb_initial = atu8_data[ib_read++];
+
+	// extract additional information
 	let xc_additional = xb_initial & 0x1f;
+
+	// extract major type
 	let xc_major = xb_initial >> 5;
 
 	// only used in next if block, but placed in outer scope join declaration sequence
 	let nb_ahead = 1 << (xc_additional - 24);
-	let dv_data = dataview(atu8_data.buffer);
+
+	// create view relative to input slice
+	let dv_data = dataview_from(atu8_data);
 
 	// default to low uint value
-	let xn_value = xc_additional;
+	let x_value: number | bigint = xc_additional;
+
+	// additional integer bytes follow
 	if(xc_additional > 23) {
 		// read network-order bytes
-		xn_value = dv_data['getUint'+(8*nb_ahead) as 'getUint32'](ib_read);
+		x_value = 8 === nb_ahead
+			// read 64-bit integer
+			? dv_data.getBigUint64(ib_read)
+			// read number-sized integer
+			: dv_data['getUint'+(8*nb_ahead) as 'getUint32'](ib_read);
+
+		// advance past integer
 		ib_read += nb_ahead;
 	}
 
+	// coerce value for lengths and parser selection
+	let nb_value = Number(x_value);
+
+	// define major type parsers
 	let a_parsers = [
 		// uint
-		(_?: any) => xn_value,
+		(_?: any) => x_value,
 
 		// negative int
-		(_?: any) => -xn_value - 1,
+		(_?: any) => 'bigint' === typeof x_value? -x_value - 1n: -x_value - 1,
 
 		// byte string
-		(_?: any) => atu8_data.subarray(ib_read, ib_read+=xn_value),
+		(_?: any) => atu8_data.subarray(ib_read, ib_read+=nb_value),
 
 		// text string
 		(_?: any) => bytes_to_text(a_parsers[2]()),
 
 		// array
 		(a_items: CborValue[]=[]) => {
-			for(let i_item=0; i_item<xn_value; i_item++) {
+			// decode each item
+			for(let i_item=0; i_item<nb_value; i_item++) {
+				// decode item and advance read position
 				[a_items[i_item], ib_read] = cbor_decode_trivial(atu8_data, ib_read);
 			}
 
+			// return decoded items
 			return a_items;
 		},
 
 		// map
 		(hm_out=new Map<CborValue, CborValue>()) => {
-			for(let i_item=0, z_key, z_value; i_item<xn_value; i_item++) {
+			// decode each entry
+			for(let i_item=0, z_key, z_value; i_item<nb_value; i_item++) {
+				// decode key and advance read position
 				[z_key, ib_read] = cbor_decode_trivial(atu8_data, ib_read);
+
+				// decode value and advance read position
 				[z_value, ib_read] = cbor_decode_trivial(atu8_data, ib_read);
 
 				// save entry to map
 				hm_out.set(z_key, z_value);
 			}
 
+			// return decoded map
 			return hm_out;
 		},
 
 		// tagged item
 		(z_payload?: unknown) => [
 			// date/time string
-			(_?: any) => bytes_to_text(z_payload as Uint8Array),
+			(_?: any) => Date.parse(z_payload as string),
 
 			// epoch-based date/time as number of seconds (integer or float)
 			(_?: any) => z_payload as number,
@@ -99,7 +126,7 @@ export const cbor_decode_trivial = <
 
 			// negative bigint
 			(_?: any) => -bytes_to_biguint_be(z_payload as Uint8Array) - 1n,
-		][xc_additional]([z_payload, ib_read]=cbor_decode_trivial(atu8_data, ib_read)),
+		][nb_value]([z_payload, ib_read]=cbor_decode_trivial(atu8_data, ib_read)),
 
 		// major type 7
 		(__?: any) => [
@@ -111,6 +138,7 @@ export const cbor_decode_trivial = <
 	] as const;
 	/* eslint-enable */
 
+	// return decoded item and read position
 	return [
 		a_parsers[xc_major]() as w_expected,
 		ib_read,

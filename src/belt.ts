@@ -151,9 +151,9 @@ export const is_string = (z: unknown): z is string => (typeof z)[2] > 'q';
 export const is_symbol = (z: unknown): z is symbol => (typeof z)[1] > 'x';
 
 /**
- * Equivalent to testing `'object' === typeof thing`
+ * Equivalent to testing `'object' === typeof thing && null !== thing`
  */
-export const is_object = (z: unknown): z is object => (typeof z)[1] < 'c';
+export const is_object = (z: unknown): z is object => !!z && (typeof z)[1] < 'c';
 
 /**
  * Equivalent to testing `'function' === typeof thing`
