@@ -1,10 +1,6 @@
 
 /* eslint-disable @typescript-eslint/naming-convention */
-import type {A} from 'ts-toolbelt';
-
-import type {NoInfer} from 'ts-toolbelt/out/Function/NoInfer';
-
-import type {InsteadOfAny, JsonObject, KeyValuable, EntryKeysOf, Promisable, TypedArray, ValuesOf, AnyBoolish, IfBoolishTrue} from './types';
+import type {InsteadOfAny, JsonObject, KeyValuable, EntryKeysOf, Promisable, TypedArray, ValuesOf, AnyBoolish, IfBoolishTrue} from './types.js';
 
 
 /**
@@ -377,7 +373,7 @@ export const filter_object = <
 export const without_keys = <
 	h_object extends {},
 	z_keys extends EntryKeysOf<h_object>,
->(h_object: h_object, a_keys: z_keys[]): A.Compute<Omit<h_object, z_keys>> => filter_object<h_object, z_keys>(h_object, ([si_key]) => !a_keys.includes(si_key)) as A.Compute<Omit<h_object, z_keys>>;
+>(h_object: h_object, a_keys: z_keys[]): Omit<h_object, z_keys> => filter_object<h_object, z_keys>(h_object, ([si_key]) => !a_keys.includes(si_key)) as never;
 
 
 /**

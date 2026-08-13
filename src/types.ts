@@ -1,5 +1,3 @@
-import type {A, U} from 'ts-toolbelt';
-
 // would much prefer to use Symbol here, but TypeScript treats them as different types
 // if dependency versions don't align
 /* eslint-disable @typescript-eslint/naming-convention */
@@ -52,7 +50,7 @@ export type Access<
 }? w_value: undefined;
 
 
-type UnionKeys<h_types> = h_types extends any? keyof U.IntersectOf<h_types>: never;
+type UnionKeys<h_types> = h_types extends any? keyof h_types: never;
 
 /**
  * Takes a union of objects and makes it so that each object includes keys from the other
@@ -62,7 +60,7 @@ type UnionKeys<h_types> = h_types extends any? keyof U.IntersectOf<h_types>: nev
 export type DiscriminatedUnion<h_types, h_clone=h_types> = h_types extends any
 	? UnionKeys<h_clone> extends infer as_keys
 		? {
-			[si_each in keyof h_types]: Record<si_each, h_types[si_each]> & Partial<Record<Exclude<A.Cast<as_keys, A.Key>, si_each>, undefined>>
+			[si_each in keyof h_types]: Record<si_each, h_types[si_each]> & Partial<Record<Exclude<Extract<as_keys, PropertyKey>, si_each>, undefined>>
 		}[keyof h_types]
 		: never
 	: never;
@@ -192,7 +190,7 @@ export type JsonValue<w_inject extends any=never> =
 /**
  * Removes JSON interfaces from a type
  */
-export type RemoveJsonInterfaces<w_type> = Exclude<A.Compute<Exclude<Extract<w_type, object>, JsonArray>>, JsonObject>;
+export type RemoveJsonInterfaces<w_type> = Exclude<Exclude<Extract<w_type, object>, JsonArray>, JsonObject>;
 
 /**
  * Reinterprets the given type as being JSON-compatible

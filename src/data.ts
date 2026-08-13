@@ -1,10 +1,8 @@
 /* eslint-disable prefer-const */
-import type {Array} from 'ts-toolbelt/out/Misc/JSON/_api';
+import type {NaiveBase58, NaiveBase64, NaiveBase93, NaiveHexLower} from './strings.js';
+import type {AnyBoolish, JsonObject, JsonValue, NaiveJsonString, Nilable, TypedArray} from './types.js';
 
-import type {NaiveBase58, NaiveBase64, NaiveBase93, NaiveHexLower} from './strings';
-import type {AnyBoolish, JsonObject, JsonValue, NaiveJsonString, Nilable, TypedArray} from './types';
-
-import {XG_8, is_array, is_dict_es, is_string, entries, from_entries, die, try_sync, is_safe_integer} from './belt.js';
+import {XG_8, is_array, is_dict_es, entries, from_entries, die, try_sync, is_safe_integer} from './belt.js';
 
 export const SI_HASH_ALGORITHM_SHA256 = 'SHA-256';
 export const SI_HASH_ALGORITHM_SHA384 = 'SHA-384';
@@ -299,6 +297,9 @@ export const zero_out = zeroize;
 
 
 export const encode_length_prefix_u16 = <w_buffer extends ArrayBufferLike>(atu8_data: Uint8Array<w_buffer>): Uint8Array<w_buffer> => {
+	// reject lengths that cannot fit in prefix
+	if(atu8_data.byteLength > 0xffff) die('Data exceeds uint16 length prefix');
+
 	// prep buffer to serialize encoded extension
 	const atu8_encoded = concat([
 		bytes(2),  // 2 bytes for length prefix
@@ -316,6 +317,9 @@ export const encode_length_prefix_u16 = <w_buffer extends ArrayBufferLike>(atu8_
 export const decode_length_prefix_u16 = <w_buffer extends ArrayBufferLike>(atu8_encoded: Uint8Array<w_buffer>): [Uint8Array<w_buffer>, Uint8Array<w_buffer>] => {
 	// use big-endian to decode length prefix
 	const ib_terminus = new DataView(atu8_encoded.buffer).getUint16(atu8_encoded.byteOffset, false) + 2;
+
+	// reject truncated payload
+	if(ib_terminus > atu8_encoded.byteLength) die('Truncated uint16-prefixed data');
 
 	// return decoded payload buffer and everything after it
 	return [atu8_encoded.subarray(2, ib_terminus), atu8_encoded.subarray(ib_terminus)];
@@ -404,6 +408,9 @@ export const bytes_to_uint32_be = (atu8_buffer: Uint8Array, ib_offset=0): number
  * @returns the encoded buffer
  */
 export const biguint_to_bytes_be = (xg_value: bigint, nb_size=32): Uint8Array<ArrayBuffer> => {
+	// reject negative or overflowing value
+	if(xg_value < 0n || xg_value >> BigInt(nb_size*8)) die('Bigint does not fit unsigned buffer');
+
 	// prep buffer of the appropriate size
 	let atu8_out = bytes(nb_size);
 
@@ -541,8 +548,13 @@ export const bytes_to_hex = (atu8_buffer: Uint8Array): NaiveHexLower => atu8_buf
  * @param sx_hex input hex string
  * @returns output buffer
  */
-export const hex_to_bytes = (sx_hex: string): Uint8Array<ArrayBuffer> => bytes(sx_hex.length / 2)
-	.map((xb_ignore, i_char) => parseInt(sx_hex.slice(i_char * 2, (i_char * 2) + 2), 16));
+export const hex_to_bytes = (sx_hex: string): Uint8Array<ArrayBuffer> => {
+	// reject malformed encoding
+	if((sx_hex.length & 1) || /[^\da-f]/iu.test(sx_hex)) die('Invalid hex string');
+
+	// decode byte pairs
+	return bytes(sx_hex.length / 2).map((xb_ignore, i_char) => parseInt(sx_hex.slice(i_char * 2, (i_char * 2) + 2), 16));
+};
 
 
 /**
@@ -634,6 +646,9 @@ export const bytes_to_base64 = (atu8_buffer: Uint8Array, b_url_safe: AnyBoolish=
 export const base64_to_bytes = (sb64_data: string): Uint8Array<ArrayBuffer> => {
 	// remove padding from string and normalize from URL-safe variant
 	sb64_data = sb64_data.replace(/=+$/, '').replace(/[-_]/g, s => '-' === s? '+': '_' === s? '/': s);
+
+	// reject impossible sextet count
+	if(1 === (sb64_data.length & 3)) die('Invalid base64 string');
 
 	// a buffer to store decoded sextets
 	let xb_work = 0;
@@ -836,23 +851,22 @@ export const bytes_to_base58 = (atu8_buffer: Uint8Array): NaiveBase58 => {
 };
 
 export const base58_to_bytes = (sb58_buffer: string): Uint8Array<ArrayBuffer> => {
-	if(!sb58_buffer || !is_string(sb58_buffer)) {
-		die(`Expected base58 string but got “${sb58_buffer}”`);
-	}
+	// reject characters outside alphabet
+	if(/[^1-9A-HJ-NP-Za-km-z]/u.test(sb58_buffer)) die('Invalid base58 string');
 
-	const m_invalid = sb58_buffer.match(/[IOl0]/gmu);
-	if(m_invalid) {
-		die(`Invalid base58 character “${String(m_invalid)}”`);
-	}
-
+	// count leading zeroes
 	const m_lz = sb58_buffer.match(/^1+/gmu);
+
+	// measure leading zeroes
 	const nl_psz = m_lz ? m_lz[0].length : 0;
+
+	// estimate output size
 	const nb_out = (((sb58_buffer.length - nl_psz) * (Math.log(58) / Math.log(256))) + 1) >>> 0;
 
+	// decode digits
 	return bytes([
 		...bytes(nl_psz),
-		...sb58_buffer
-			.match(/.{1}/gmu)!
+		...(sb58_buffer.match(/./gmu) || [])
 			.map(sxb58 => SX_CHARS_BASE58.indexOf(sxb58))
 			.reduce((atu8_out, ib_pos) => atu8_out.map((xb_char) => {
 				const xb_tmp = (xb_char * 58) + ib_pos;

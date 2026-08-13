@@ -28,6 +28,8 @@ import {
 	base93_to_bytes,
 	sha256,
 	sha512,
+	encode_length_prefix_u16,
+	decode_length_prefix_u16,
 } from '../dist/mjs/data';
 import { bytes_to_string8 } from 'src/data';
 
@@ -69,6 +71,45 @@ describe('biguint_to_bytes_be + bytes_to_biguint_be', () => {
 			expect(bytes_to_biguint_be(atu8_actual)).toEqual(xg_in);
 		});
 	}
+});
+
+describe('malformed binary data', () => {
+	test('rejects biguint values outside output size', () => {
+		// reject negative value
+		expect(() => biguint_to_bytes_be(-1n, 1)).toThrow();
+
+		// reject overflowing value
+		expect(() => biguint_to_bytes_be(256n, 1)).toThrow();
+	});
+
+	test('rejects malformed hex', () => {
+		// reject invalid digits
+		expect(() => hex_to_bytes('zz')).toThrow();
+
+		// reject incomplete byte
+		expect(() => hex_to_bytes('0')).toThrow();
+	});
+
+	test('rejects malformed base encodings', () => {
+		// reject invalid base58 digit
+		expect(() => base58_to_bytes('!')).toThrow();
+
+		// reject incomplete base64 sextet
+		expect(() => base64_to_bytes('A')).toThrow();
+	});
+
+	test('round trips empty base58', () => {
+		// encode and decode empty data
+		expect(base58_to_bytes(bytes_to_base58(bytes(0)))).toEqual(bytes(0));
+	});
+
+	test('rejects overflowing or truncated uint16 frames', () => {
+		// reject overflowing encoded length
+		expect(() => encode_length_prefix_u16(bytes(0x10000))).toThrow();
+
+		// reject payload shorter than declared length
+		expect(() => decode_length_prefix_u16(bytes([0, 2, 1]))).toThrow();
+	});
 });
 
 describe('canonicalize_json', () => {

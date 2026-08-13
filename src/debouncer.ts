@@ -1,8 +1,6 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable prefer-const */
-import type {O} from 'ts-toolbelt';
-
-import type {Promisable} from './types';
+import type {Promisable} from './types.js';
 
 import {defer} from './async.js';
 import {__UNDEFINED, assign, create, is_finite} from './belt.js';
@@ -285,5 +283,5 @@ export const Debouncer = (
 		p: 0,
 		c: 0,
 		r: [],
-	} satisfies Omit<DebouncerPrivate, O.SelectKeys<DebouncerPrivate, undefined> | 't'>
+	} satisfies Omit<DebouncerPrivate, 'S' | 'D' | 'I' | 'C' | 't'>
 );

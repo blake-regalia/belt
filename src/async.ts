@@ -1,5 +1,5 @@
 
-import type {Nilable} from './types';
+import type {Nilable} from './types.js';
 
 import {__UNDEFINED, F_NOOP, is_finite} from './belt.js';
 

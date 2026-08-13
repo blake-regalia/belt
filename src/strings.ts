@@ -1,6 +1,4 @@
-import type {NoInfer} from 'ts-toolbelt/out/Function/_api';
-
-import type {Subtype} from './types';
+import type {Subtype} from './types.js';
 
 /**
  * An integer string

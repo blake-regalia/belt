@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-this-alias */
 /* eslint-disable @typescript-eslint/naming-convention */
-import type {Promisable} from './types';
+import type {Promisable} from './types.js';
 
 import {promise_resolve} from './async.js';
 import {__UNDEFINED, assign, create, die} from './belt.js';

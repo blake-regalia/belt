@@ -56,7 +56,7 @@ export const cbor_decode_trivial = <
 	// additional integer bytes follow
 	if(xc_additional > 23) {
 		// read network-order bytes
-		xz_value = dv_data[(8 === nb_ahead? 'Big': '')+'getUint'+(8*nb_ahead) as 'getUint32'](ib_read);
+		xz_value = dv_data['get'+(8 === nb_ahead? 'Big': '')+'Uint'+(8*nb_ahead) as 'getUint32'](ib_read);
 
 		// advance past integer
 		ib_read += nb_ahead;
