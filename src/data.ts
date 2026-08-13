@@ -48,30 +48,28 @@ export const bigint_abs = (xg_a: bigint, xg_b=0n, xg_delta=xg_a-xg_b as never): 
  * @param a_values - list of values
  * @returns the max value
  */
-export const bigint_max = (a_values: bigint[]): bigint => a_values.reduce(bigint_greater, 0n);
+export const bigint_max = (a_values: bigint[]): bigint => a_values.reduce(bigint_greater);
 
 /**
  * Computes the minimunm value among a list of `bigint` values
  * @param a_values - list of values
  * @returns the min value
  */
-export const bigint_min = (a_values: bigint[]): bigint => a_values.reduce(bigint_lesser, 0n);
+export const bigint_min = (a_values: bigint[]): bigint => a_values.reduce(bigint_lesser);
+/**
+ * Generates a cryptographically secure RFC 4122 version 4 UUID.
+ */
+export const uuid_v4 = (): string => {
+	const d_crypto = globalThis.crypto;
+	if(d_crypto?.randomUUID) return d_crypto.randomUUID();
+	if(!d_crypto?.getRandomValues) return die('Cryptographically secure random values are not available in the current environment');
 
+	const atu8_uuid = d_crypto.getRandomValues(bytes(16));
+	atu8_uuid[6] = (atu8_uuid[6] & 0x0f) | 0x40;
+	atu8_uuid[8] = (atu8_uuid[8] & 0x3f) | 0x80;
 
-
-const S_UUID_V4 = 'xxxxxxxx_xxxx_4xxx_yxxx_xxxxxxxxxxxx';
-
-const R_UUID_V4 = /[xy]/g;
-
-// @ts-expect-error in case crypto global is not defined
-export const uuid_v4 = globalThis.crypto?.randomUUID? () => crypto.randomUUID(): (): string => {
-	let xt_now = Date.now();
-	if('undefined' !== typeof performance) xt_now += performance.now();
-	return S_UUID_V4.replace(R_UUID_V4, (s) => {
-		const x_r = (xt_now + (Math.random()*16)) % 16 | 0;
-		xt_now = Math.floor(xt_now / 16);
-		return ('x' === s? x_r: (x_r & 0x3) | 0x8).toString(16);
-	});
+	const sx_uuid = bytes_to_hex(atu8_uuid);
+	return `${sx_uuid.slice(0, 8)}-${sx_uuid.slice(8, 12)}-${sx_uuid.slice(12, 16)}-${sx_uuid.slice(16, 20)}-${sx_uuid.slice(20)}`;
 };
 
 
@@ -880,13 +878,30 @@ export const crypto_random_unit_double = (): number => crypto.getRandomValues(ne
 export const crypto_random = crypto_random_unit_double;
 
 /**
- * Generate a cryptographically strong random int within a given range
+ * Generate an unbiased, cryptographically strong random integer in the half-open range
+ * between the two bounds. Fractional bounds are expanded outwards to integers.
  */
 export const crypto_random_int = (x_a: number, x_b = 0): number => {
 	const x_min = Math.floor(Math.min(x_a, x_b));
 	const x_max = Math.ceil(Math.max(x_a, x_b));
+	if(!Number.isSafeInteger(x_min) || !Number.isSafeInteger(x_max)) {
+		return die('Random integer bounds must be finite safe integers');
+	}
 
-	// confine to range
-	return Math.floor(crypto_random_unit_double() * (x_max - x_min)) + x_min;
+	const xg_range = BigInt(x_max) - BigInt(x_min);
+	if(xg_range <= 0n) return die('Random integer range must contain at least one integer');
+
+	const d_crypto = globalThis.crypto;
+	if(!d_crypto?.getRandomValues) return die('Cryptographically secure random values are not available in the current environment');
+
+	const xg_domain = 1n << 64n;
+	const xg_limit = xg_domain - (xg_domain % xg_range);
+	const atu32_random = new Uint32Array(2);
+	let xg_random: bigint;
+	do {
+		d_crypto.getRandomValues(atu32_random);
+		xg_random = (BigInt(atu32_random[0]) << 32n) | BigInt(atu32_random[1]);
+	} while(xg_random >= xg_limit);
+
+	return Number(BigInt(x_min) + (xg_random % xg_range));
 };
-

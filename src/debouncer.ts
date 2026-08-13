@@ -4,10 +4,14 @@ import type {O} from 'ts-toolbelt';
 
 import type {Promisable} from './types';
 
-import {defer} from './async.js';
 import {__UNDEFINED, assign, create, is_finite} from './belt.js';
 
 type Timeout = NodeJS.Timeout | number | undefined;
+
+type DebouncerWaiter = {
+	resolve(c_hits: number): void;
+	reject(e_reason: unknown): void;
+};
 
 export interface Debouncer {
 	/**
@@ -21,7 +25,7 @@ export interface Debouncer {
 	clears(): Promise<number>;
 
 	/**
-	 * Cancels the next execution and resets eveything
+	 * Cancels the next execution, resets pending state, and settles clear listeners
 	 */
 	cancel(): Promise<void>;
 }
@@ -31,7 +35,7 @@ type DebouncerPrivate = {
 	f: () => Promisable<any>;
 
 	// termination function
-	t: (this: DebouncerInternal, xc_execute?: 0 | 1) => Promise<void>;
+	t: (this: DebouncerInternal, xc_cancel?: 0 | 1, xc_idle?: 0 | 1) => Promise<void>;
 
 	// span of time allowed to pass after initial hit
 	s: number;
@@ -60,11 +64,14 @@ type DebouncerPrivate = {
 	// busy flag
 	b: 0 | 1;
 
+	// execution was requested while busy
+	p: 0 | 1;
+
 	// maximum number of hits before executing
 	n: number;
 
 	// clears hooks
-	r: ((c_hits: number) => Promisable<any>)[];
+	r: DebouncerWaiter[];
 };
 
 type DebouncerInternal = Debouncer & DebouncerPrivate;
@@ -72,54 +79,87 @@ type DebouncerInternal = Debouncer & DebouncerPrivate;
 // alias clearTimeout
 const clear = clearTimeout;
 
+const clear_timers = (k_this: DebouncerInternal): void => {
+	clear(k_this.S);
+	clear(k_this.D);
+	clear(k_this.I);
+	clear(k_this.C);
+	k_this.S = k_this.D = k_this.I = k_this.C = __UNDEFINED;
+};
+
 const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 	// private termination function
-	async t(this: DebouncerInternal, xc_cancel=0) {
+	async t(this: DebouncerInternal, xc_cancel=0, xc_idle=0) {
 		// ref this
 		let k_this = this;
 
 		// ref number of hits
 		let c_hits = k_this.c;
 
-		// reset counter
-		k_this.c = 0;
-
-		// clear timeouts
-		clear(k_this.S);
-		clear(k_this.D);
-		clear(k_this.I);
-		clear(k_this.C);
-
-		// reset timeouts
-		k_this.S = k_this.D = k_this.I = k_this.C = __UNDEFINED;
-
-		// execution wasn't cancelled
-		if(!xc_cancel) {
-			// mark as busy
-			k_this.b = 1;
-
-			// get and clear queued 'clears' hooks
-			const a_cleared = k_this.r.splice(0);
-
-			// execute
-			await k_this.f();
-
-			// mark as not busy
-			k_this.b = 0;
-
-			// call hooks with number of hits
-			a_cleared.map(f => f(c_hits));
+		// cancel pending work and settle its listeners
+		if(xc_cancel) {
+			k_this.c = 0;
+			k_this.p = 0;
+			clear_timers(k_this);
+			for(const g_waiter of k_this.r.splice(0)) g_waiter.resolve(c_hits);
+			return;
 		}
 
-		// set a timeout to execute once the idle passes
-		if(is_finite(k_this.i)) k_this.I = setTimeout(() => k_this.t(), k_this.i);
+		// a hit can race with an idle timer that is already queued
+		if(xc_idle && c_hits) xc_idle = 0;
+
+		// serialize callback executions
+		if(k_this.b) {
+			if(!xc_idle) {
+				k_this.p = 1;
+				clear_timers(k_this);
+			}
+
+			return;
+		}
+
+		clear_timers(k_this);
+		if(!xc_idle && !c_hits) return;
+
+		// claim the current batch
+		k_this.c = 0;
+		k_this.p = 0;
+		k_this.b = 1;
+		const a_cleared = xc_idle? []: k_this.r.splice(0);
+		let b_succeeded = false;
+
+		try {
+			await k_this.f();
+			b_succeeded = true;
+			for(const g_waiter of a_cleared) g_waiter.resolve(c_hits);
+		}
+		catch(e_exec) {
+			for(const g_waiter of a_cleared) g_waiter.reject(e_exec);
+		}
+		finally {
+			k_this.b = 0;
+
+			// a trigger elapsed while the prior callback was still running
+			if(k_this.p) {
+				k_this.p = 0;
+				k_this.C = setTimeout(() => {
+					void k_this.t();
+				}, 0);
+			}
+			// idle execution happens at most once after a successful non-idle execution
+			else if(!k_this.c && b_succeeded && !xc_idle && is_finite(k_this.i)) {
+				k_this.I = setTimeout(() => {
+					void k_this.t(0, 1);
+				}, k_this.i);
+			}
+		}
 	},
 
 	/**
 	 * "Hit" the debouncer, queueing execution if not already queued
 	 * @param this 
 	 */
-	async hit(this: DebouncerInternal): Promise<void> {
+	hit(this: DebouncerInternal): void {
 		// ref this
 		let k_this = this;
 
@@ -132,14 +172,17 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		// incremenet call count
 		let c_calls = k_this.c++;
 
+		// new work supersedes an idle execution
+		clear(k_this.I);
+		k_this.I = __UNDEFINED;
+
 		// wrap termination function for passing to timeout
-		const f_t = () => k_this.t();
+		const f_t = () => {
+			void k_this.t();
+		};
 
 		// reached call count; execute
 		if(c_calls+1 >= k_this.n) {
-			// busy
-			if(k_this.b) await k_this.clears();
-
 			// cancel previous timeout
 			clear(k_this.C);
 
@@ -171,14 +214,9 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		// no hits, resolve immediately
 		if(!this.c) return Promise.resolve(0);
 
-		// creates a deferred Promise
-		const [dp_cleared, f_cleared] = defer<number>();
-
-		// adds resolver to list
-		this.r.push(f_cleared);
-
-		// returns Promise
-		return dp_cleared;
+		return new Promise((fk_resolve, fe_reject) => {
+			this.r.push({resolve:fk_resolve, reject:fe_reject});
+		});
 	},
 
 	/**
@@ -195,7 +233,7 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
  * @param f_exec - execution callback
  * @param xt_span - executes once this amount of time has passed after the initial hit
  * @param xt_delay - executes once this amount of time has passed after the last hit
- * @param xt_idle - executes once this amount of time has passed after the last execution
+ * @param xt_idle - executes once after this amount of idle time has passed since the last execution
  * @param n_calls - executes once this number of hits has occurred after initial hit
  * @returns 
  */
@@ -219,6 +257,7 @@ export const Debouncer = (
 
 		// fields
 		b: 0,
+		p: 0,
 		c: 0,
 		r: [],
 	} satisfies Omit<DebouncerPrivate, O.SelectKeys<DebouncerPrivate, undefined> | 't'>

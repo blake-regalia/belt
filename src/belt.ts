@@ -25,12 +25,12 @@ export const XG_8 = 8n;
 /**
  * The value `16n`
  */
-export const XG_16 = 8n;
+export const XG_16 = 16n;
 
 /**
  * The value `32n`
  */
-export const XG_32 = 8n;
+export const XG_32 = 32n;
 
 
 /**
@@ -272,7 +272,7 @@ export const assign: <
 /**
  * @deprecated Use {@link assign} instead
  */
-export const oda = create;
+export const oda = assign;
 
 /**
  * Typed alias to `Object.keys`
@@ -284,7 +284,7 @@ export const keys: <
 /**
  * @deprecated Use {@link keys} instead
  */
-export const odk = create;
+export const odk = keys;
 
 /**
  * Typed alias to `Object.values`
@@ -297,7 +297,7 @@ export const values: <
 /**
  * @deprecated Use {@link values} instead
  */
-export const odv = create;
+export const odv = values;
 
 /**
  * Typed alias of `Object.entries`
@@ -716,9 +716,9 @@ export const sum = (a_values: number[]): number => a_values.reduce((x_a, x_b) =>
 /**
  * Reducer function to compute product of a list numbers
  * @param a_values - list of values to multiply
- * @returns the sum
+ * @returns the product
  */
-export const product = (a_values: number[]): number => a_values.reduce((x_a, x_b) => x_a * x_b, 0);
+export const product = (a_values: number[]): number => a_values.reduce((x_a, x_b) => x_a * x_b, 1);
 
 /**
  * Normalizes a list numbers
