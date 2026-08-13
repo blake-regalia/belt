@@ -548,13 +548,13 @@ export const bytes_to_hex = (atu8_buffer: Uint8Array): NaiveHexLower => atu8_buf
  * @param sx_hex input hex string
  * @returns output buffer
  */
-export const hex_to_bytes = (sx_hex: string): Uint8Array<ArrayBuffer> => {
+export const hex_to_bytes = (sx_hex: string): Uint8Array<ArrayBuffer> => (
+	sx_hex.length & 1
+) || /[^\da-f]/iu.test(sx_hex)
 	// reject malformed encoding
-	if((sx_hex.length & 1) || /[^\da-f]/iu.test(sx_hex)) die('Invalid hex string');
-
+	? die('Invalid hex string')
 	// decode byte pairs
-	return bytes(sx_hex.length / 2).map((xb_ignore, i_char) => parseInt(sx_hex.slice(i_char * 2, (i_char * 2) + 2), 16));
-};
+	: bytes(sx_hex.length / 2).map((xb_ignore, i_char) => parseInt(sx_hex.slice(i_char * 2, (i_char * 2) + 2), 16));
 
 
 /**
