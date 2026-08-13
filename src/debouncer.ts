@@ -4,14 +4,12 @@ import type {O} from 'ts-toolbelt';
 
 import type {Promisable} from './types';
 
+import {defer} from './async.js';
 import {__UNDEFINED, assign, create, is_finite} from './belt.js';
 
 type Timeout = NodeJS.Timeout | number | undefined;
 
-type DebouncerWaiter = {
-	resolve(c_hits: number): void;
-	reject(e_reason: unknown): void;
-};
+type DebouncerWaiter = ReturnType<typeof defer<number>>[1];
 
 export interface Debouncer {
 	/**
@@ -108,7 +106,7 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 			clear_timers(k_this);
 
 			// settle clear listeners
-			for(const g_waiter of k_this.r.splice(0)) g_waiter.resolve(c_hits);
+			k_this.r.splice(0).map(f_cleared => f_cleared(c_hits));
 			return;
 		}
 
@@ -155,11 +153,11 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 			b_succeeded = true;
 
 			// resolve all cleared listeners
-			for(const g_waiter of a_cleared) g_waiter.resolve(c_hits);
+			a_cleared.map(f_cleared => f_cleared(c_hits));
 		}
 		// handle error
 		catch(e_exec) {
-			for(const g_waiter of a_cleared) g_waiter.reject(e_exec);
+			a_cleared.map(f_cleared => f_cleared(__UNDEFINED, e_exec as Error));
 		}
 		// always run cleanup
 		finally {
@@ -240,9 +238,14 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		// no hits, resolve immediately
 		if(!this.c) return Promise.resolve(0);
 
-		return new Promise((fk_resolve, fe_reject) => {
-			this.r.push({resolve:fk_resolve, reject:fe_reject});
-		});
+		// creates a deferred Promise
+		const [dp_cleared, f_cleared] = defer<number>();
+
+		// adds resolver to list
+		this.r.push(f_cleared);
+
+		// returns Promise
+		return dp_cleared;
 	},
 
 	/**
