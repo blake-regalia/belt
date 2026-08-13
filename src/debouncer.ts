@@ -77,17 +77,6 @@ type DebouncerInternal = Debouncer & DebouncerPrivate;
 // alias clearTimeout
 const clear = clearTimeout;
 
-// clear all timers and reset their references
-const clear_timers = (k_this: DebouncerInternal): void => {
-	clear(k_this.S);
-	clear(k_this.D);
-	clear(k_this.I);
-	clear(k_this.C);
-
-	// reset timer references
-	k_this.S = k_this.D = k_this.I = k_this.C = __UNDEFINED;
-};
-
 const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 	// private termination function
 	async t(this: DebouncerInternal, xc_cancel=0, xc_idle=0) {
@@ -100,8 +89,17 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		// a hit can race with an idle timer that is already queued
 		if(xc_idle && c_hits) xc_idle = 0;
 
-		// clear timers unless ignoring an idle trigger while busy
-		if(xc_cancel || !k_this.b || !xc_idle) clear_timers(k_this);
+		// not ignoring an idle trigger while busy
+		if(xc_cancel || !k_this.b || !xc_idle) {
+			// clear all timers
+			clear(k_this.S);
+			clear(k_this.D);
+			clear(k_this.I);
+			clear(k_this.C);
+
+			// reset their references
+			k_this.S = k_this.D = k_this.I = k_this.C = __UNDEFINED;
+		}
 
 		// cancel pending work and settle its listeners
 		if(xc_cancel) {
