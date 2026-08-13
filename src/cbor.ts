@@ -1,6 +1,6 @@
 /* eslint-disable prefer-const, @typescript-eslint/naming-convention */
 
-import {__UNDEFINED} from './belt.js';
+import {__UNDEFINED, is_bigint} from './belt.js';
 import {bytes_to_biguint_be, bytes_to_text, dataview_from} from './data.js';
 
 /**
@@ -51,34 +51,31 @@ export const cbor_decode_trivial = <
 	let dv_data = dataview_from(atu8_data);
 
 	// default to low uint value
-	let x_value: number | bigint = xc_additional;
+	let xz_value: number | bigint = xc_additional;
 
 	// additional integer bytes follow
 	if(xc_additional > 23) {
 		// read network-order bytes
-		x_value = 8 === nb_ahead
-			// read 64-bit integer
-			? dv_data.getBigUint64(ib_read)
-			// read number-sized integer
-			: dv_data['getUint'+(8*nb_ahead) as 'getUint32'](ib_read);
+		xz_value = dv_data[(8 === nb_ahead? 'Big': '')+'getUint'+(8*nb_ahead) as 'getUint32'](ib_read);
 
 		// advance past integer
 		ib_read += nb_ahead;
 	}
 
 	// coerce value for lengths and parser selection
-	let nb_value = Number(x_value);
+	let xn_value = Number(xz_value);
 
 	// define major type parsers
 	let a_parsers = [
 		// uint
-		(_?: any) => x_value,
+		(_?: any) => xz_value,
 
 		// negative int
-		(_?: any) => 'bigint' === typeof x_value? -x_value - 1n: -x_value - 1,
+		// @ts-expect-error type guard doesn't narrow in closure context
+		(_?: any) => -xz_value - (is_bigint(xz_value)? 1n: 1),
 
 		// byte string
-		(_?: any) => atu8_data.subarray(ib_read, ib_read+=nb_value),
+		(_?: any) => atu8_data.subarray(ib_read, ib_read+=xn_value),
 
 		// text string
 		(_?: any) => bytes_to_text(a_parsers[2]()),
@@ -86,7 +83,7 @@ export const cbor_decode_trivial = <
 		// array
 		(a_items: CborValue[]=[]) => {
 			// decode each item
-			for(let i_item=0; i_item<nb_value; i_item++) {
+			for(let i_item=0; i_item<xn_value; i_item++) {
 				// decode item and advance read position
 				[a_items[i_item], ib_read] = cbor_decode_trivial(atu8_data, ib_read);
 			}
@@ -98,7 +95,7 @@ export const cbor_decode_trivial = <
 		// map
 		(hm_out=new Map<CborValue, CborValue>()) => {
 			// decode each entry
-			for(let i_item=0, z_key, z_value; i_item<nb_value; i_item++) {
+			for(let i_item=0, z_key, z_value; i_item<xn_value; i_item++) {
 				// decode key and advance read position
 				[z_key, ib_read] = cbor_decode_trivial(atu8_data, ib_read);
 
@@ -126,7 +123,7 @@ export const cbor_decode_trivial = <
 
 			// negative bigint
 			(_?: any) => -bytes_to_biguint_be(z_payload as Uint8Array) - 1n,
-		][nb_value]([z_payload, ib_read]=cbor_decode_trivial(atu8_data, ib_read)),
+		][xc_additional]([z_payload, ib_read]=cbor_decode_trivial(atu8_data, ib_read)),
 
 		// major type 7
 		(__?: any) => [

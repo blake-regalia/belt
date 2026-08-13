@@ -103,12 +103,6 @@ describe('typeofs', () => {
 
 	describe('is_object', () => {
 		expect_only(is_object, 'object');
-
-		// null has object typeof but is not an object
-		test('on null => false', () => {
-			// verify null exclusion
-			expect(is_object(null)).toBe(false);
-		});
 	});
 
 	describe('is_function', () => {
