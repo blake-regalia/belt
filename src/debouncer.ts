@@ -79,11 +79,14 @@ type DebouncerInternal = Debouncer & DebouncerPrivate;
 // alias clearTimeout
 const clear = clearTimeout;
 
+// clear all timers and reset their references
 const clear_timers = (k_this: DebouncerInternal): void => {
 	clear(k_this.S);
 	clear(k_this.D);
 	clear(k_this.I);
 	clear(k_this.C);
+
+	// reset timer references
 	k_this.S = k_this.D = k_this.I = k_this.C = __UNDEFINED;
 };
 
@@ -100,7 +103,11 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 		if(xc_cancel) {
 			k_this.c = 0;
 			k_this.p = 0;
+
+			// clear all timers and reset their references
 			clear_timers(k_this);
+
+			// settle clear listeners
 			for(const g_waiter of k_this.r.splice(0)) g_waiter.resolve(c_hits);
 			return;
 		}
@@ -110,32 +117,51 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 
 		// serialize callback executions
 		if(k_this.b) {
+			// not idle; mark pending execution
 			if(!xc_idle) {
 				k_this.p = 1;
+
+				// clear all timers and reset their references
 				clear_timers(k_this);
 			}
 
+			// exit early
 			return;
 		}
 
+		// clear all timers and reset their references
 		clear_timers(k_this);
+
+		// no work to do
 		if(!xc_idle && !c_hits) return;
 
 		// claim the current batch
 		k_this.c = 0;
 		k_this.p = 0;
+
+		// mark as busy
 		k_this.b = 1;
+
+		// clear listeners
 		const a_cleared = xc_idle? []: k_this.r.splice(0);
 		let b_succeeded = false;
 
+		// try to execute
 		try {
+			// execute callback
 			await k_this.f();
+
+			// mark success
 			b_succeeded = true;
+
+			// resolve all cleared listeners
 			for(const g_waiter of a_cleared) g_waiter.resolve(c_hits);
 		}
+		// handle error
 		catch(e_exec) {
 			for(const g_waiter of a_cleared) g_waiter.reject(e_exec);
 		}
+		// always run cleanup
 		finally {
 			k_this.b = 0;
 
