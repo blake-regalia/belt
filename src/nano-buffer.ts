@@ -19,14 +19,9 @@ export interface NanoBuffer {
  * An extremely small, fast, and efficient append-only buffer suitable for use in any environment
  * @param _nb_buffer - size of each buffer segment
  * @returns a new {@link NanoBuffer}
- * @throws {RangeError} if the segment size is not a positive safe integer
  */
 /* eslint-disable @typescript-eslint/naming-convention */
 export const NanoBuffer = (_nb_buffer=32*1024): NanoBuffer => {
-	if(!Number.isSafeInteger(_nb_buffer) || _nb_buffer <= 0) {
-		throw new RangeError('NanoBuffer segment size must be a positive safe integer');
-	}
-
 	// current working buffer
 	let _atu8_buffer = bytes(_nb_buffer);
 

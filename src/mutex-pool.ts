@@ -133,20 +133,13 @@ const G_PROTOTYPE: MutexPool = {
 /**
  * This data structure allows checking out virtual 'mutexes' for multiple concurrent
  *   uses of a single/shared/limited resource such as network I/O.
- * @throws {RangeError} if the capacity is not a positive safe integer
  */
-export const MutexPool = (n_mutexes=1): MutexPool => {
-	if(!Number.isSafeInteger(n_mutexes) || n_mutexes <= 0) {
-		throw new RangeError('MutexPool capacity must be a positive safe integer');
-	}
-
-	return assign(
-		// create internal fields
-		create(G_PROTOTYPE) as MutexPool, {
-			c: n_mutexes,
-			a: n_mutexes,
-			q: [],
-			l: [],
-		} satisfies MutexPoolPrivate
-	);
-};
+export const MutexPool = (n_mutexes=1): MutexPool => assign(
+	// create internal fields
+	create(G_PROTOTYPE) as MutexPool, {
+		c: n_mutexes,
+		a: n_mutexes,
+		q: [],
+		l: [],
+	} satisfies MutexPoolPrivate
+);

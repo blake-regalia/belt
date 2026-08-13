@@ -4,7 +4,7 @@ import type {Array} from 'ts-toolbelt/out/Misc/JSON/_api';
 import type {NaiveBase58, NaiveBase64, NaiveBase93, NaiveHexLower} from './strings';
 import type {AnyBoolish, JsonObject, JsonValue, NaiveJsonString, Nilable, TypedArray} from './types';
 
-import {XG_8, is_array, is_dict_es, is_string, entries, from_entries, die, try_sync} from './belt.js';
+import {XG_8, is_array, is_dict_es, is_string, entries, from_entries, die, try_sync, is_safe_integer} from './belt.js';
 
 export const SI_HASH_ALGORITHM_SHA256 = 'SHA-256';
 export const SI_HASH_ALGORITHM_SHA384 = 'SHA-384';
@@ -56,21 +56,24 @@ export const bigint_max = (a_values: bigint[]): bigint => a_values.reduce(bigint
  * @returns the min value
  */
 export const bigint_min = (a_values: bigint[]): bigint => a_values.reduce(bigint_lesser);
+
 /**
  * Generates a cryptographically secure RFC 4122 version 4 UUID.
  */
-export const uuid_v4 = (): string => {
-	const d_crypto = globalThis.crypto;
-	if(d_crypto?.randomUUID) return d_crypto.randomUUID();
-	if(!d_crypto?.getRandomValues) return die('Cryptographically secure random values are not available in the current environment');
+export const uuid_v4 = globalThis.crypto
+	? crypto.randomUUID
+		? () => crypto.randomUUID()
+		: crypto.getRandomValues
+			? (): string => {
+				const atu8_uuid = crypto.getRandomValues(bytes(16));
+				atu8_uuid[6] = (atu8_uuid[6] & 0x0f) | 0x40;
+				atu8_uuid[8] = (atu8_uuid[8] & 0x3f) | 0x80;
 
-	const atu8_uuid = d_crypto.getRandomValues(bytes(16));
-	atu8_uuid[6] = (atu8_uuid[6] & 0x0f) | 0x40;
-	atu8_uuid[8] = (atu8_uuid[8] & 0x3f) | 0x80;
-
-	const sx_uuid = bytes_to_hex(atu8_uuid);
-	return `${sx_uuid.slice(0, 8)}-${sx_uuid.slice(8, 12)}-${sx_uuid.slice(12, 16)}-${sx_uuid.slice(16, 20)}-${sx_uuid.slice(20)}`;
-};
+				const sx_uuid = bytes_to_hex(atu8_uuid);
+				return `${sx_uuid.slice(0, 8)}-${sx_uuid.slice(8, 12)}-${sx_uuid.slice(12, 16)}-${sx_uuid.slice(16, 20)}-${sx_uuid.slice(20)}`;
+			}
+			: () => die('Cryptographically secure random values are not available in the current environment')
+	: () => die('Crypto API not available in the current environment');
 
 
 type Uint8ArrayConstructorParams =
@@ -884,9 +887,9 @@ export const crypto_random = crypto_random_unit_double;
 export const crypto_random_int = (x_a: number, x_b = 0): number => {
 	const x_min = Math.floor(Math.min(x_a, x_b));
 	const x_max = Math.ceil(Math.max(x_a, x_b));
-	if(!Number.isSafeInteger(x_min) || !Number.isSafeInteger(x_max)) {
-		return die('Random integer bounds must be finite safe integers');
-	}
+
+	// unsafe param
+	if(!is_safe_integer(x_min) || !is_safe_integer(x_max)) return die('Random integer bounds must be finite safe integers');
 
 	const xg_range = BigInt(x_max) - BigInt(x_min);
 	if(xg_range <= 0n) return die('Random integer range must contain at least one integer');
