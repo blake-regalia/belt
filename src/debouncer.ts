@@ -92,89 +92,87 @@ const G_PROTOTYPE: Debouncer & Pick<DebouncerPrivate, 't'> = {
 	// private termination function
 	async t(this: DebouncerInternal, xc_cancel=0, xc_idle=0) {
 		// ref this
-		let k_this = this;
+		const k_this = this;
 
 		// ref number of hits
-		let c_hits = k_this.c;
-
-		// cancel pending work and settle its listeners
-		if(xc_cancel) {
-			k_this.c = 0;
-			k_this.p = 0;
-
-			// clear all timers and reset their references
-			clear_timers(k_this);
-
-			// settle clear listeners
-			k_this.r.splice(0).map(f_cleared => f_cleared(c_hits));
-			return;
-		}
+		const c_hits = k_this.c;
 
 		// a hit can race with an idle timer that is already queued
 		if(xc_idle && c_hits) xc_idle = 0;
 
-		// serialize callback executions
-		if(k_this.b) {
-			// not idle; mark pending execution
-			if(!xc_idle) {
-				k_this.p = 1;
+		// clear timers unless ignoring an idle trigger while busy
+		if(xc_cancel || !k_this.b || !xc_idle) clear_timers(k_this);
 
-				// clear all timers and reset their references
-				clear_timers(k_this);
-			}
+		// cancel pending work and settle its listeners
+		if(xc_cancel) {
+			// reset pending state
+			k_this.c = k_this.p = 0;
+
+			// settle clear listeners
+			k_this.r.splice(0).map(f_cleared => f_cleared(c_hits));
 
 			// exit early
 			return;
 		}
 
-		// clear all timers and reset their references
-		clear_timers(k_this);
+		// serialize callback executions
+		if(k_this.b) {
+			// mark non-idle execution as pending
+			k_this.p ||= +!xc_idle as 0 | 1;
+
+			// exit early
+			return;
+		}
 
 		// no work to do
 		if(!xc_idle && !c_hits) return;
 
-		// claim the current batch
-		k_this.c = 0;
-		k_this.p = 0;
+		// reset pending state
+		k_this.c = k_this.p = 0;
 
 		// mark as busy
 		k_this.b = 1;
 
-		// clear listeners
-		const a_cleared = xc_idle? []: k_this.r.splice(0);
-		let b_succeeded = false;
+		// claim clear listeners
+		const a_cleared = k_this.r.splice(0);
 
 		// try to execute
 		try {
 			// execute callback
 			await k_this.f();
 
-			// mark success
-			b_succeeded = true;
-
 			// resolve all cleared listeners
 			a_cleared.map(f_cleared => f_cleared(c_hits));
+
+			// schedule one idle execution after successful non-idle execution
+			if(!k_this.p && !k_this.c && !xc_idle && is_finite(k_this.i)) {
+				// set idle timer
+				k_this.I = setTimeout(() => {
+					// execute idle callback
+					void k_this.t(0, 1);
+				}, k_this.i);
+			}
 		}
 		// handle error
 		catch(e_exec) {
+			// reject all cleared listeners
 			a_cleared.map(f_cleared => f_cleared(__UNDEFINED, e_exec as Error));
 		}
 		// always run cleanup
 		finally {
+			// mark as not busy
 			k_this.b = 0;
 
 			// a trigger elapsed while the prior callback was still running
 			if(k_this.p) {
+				// clear pending flag
 				k_this.p = 0;
+
+				// execute pending callback after current tick
 				k_this.C = setTimeout(() => {
+					// execute callback
 					void k_this.t();
 				}, 0);
-			}
-			// idle execution happens at most once after a successful non-idle execution
-			else if(!k_this.c && b_succeeded && !xc_idle && is_finite(k_this.i)) {
-				k_this.I = setTimeout(() => {
-					void k_this.t(0, 1);
-				}, k_this.i);
 			}
 		}
 	},
