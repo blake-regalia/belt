@@ -5,6 +5,7 @@
 		"baseUrl": ".",
 		"outDir": "dist/void",
 		"declarationDir": "dist/void",
+		"incremental": false,
 
 		"moduleResolution": "node",
 	},

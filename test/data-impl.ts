@@ -96,6 +96,12 @@ describe('malformed binary data', () => {
 
 		// reject incomplete base64 sextet
 		expect(() => base64_to_bytes('A')).toThrow();
+
+		// reject excess base64 padding
+		expect(() => base64_to_bytes('Yg===')).toThrow();
+
+		// reject nonzero base64 padding bits
+		expect(() => base64_to_bytes('YR==')).toThrow();
 	});
 
 	test('round trips empty base58', () => {

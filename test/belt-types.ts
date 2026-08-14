@@ -5,7 +5,7 @@ import {each, keys, values, entries, map_entries, reduce_object, fold} from 'src
 // each
 {
 	// empty array
-	each([], () => {});
+	each([], () => void 0);
 
 	// array of strings
 	each([''], (s_each, i_each) => {

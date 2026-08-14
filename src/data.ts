@@ -644,11 +644,14 @@ export const bytes_to_base64 = (atu8_buffer: Uint8Array, b_url_safe: AnyBoolish=
  * @returns output buffer
  */
 export const base64_to_bytes = (sb64_data: string): Uint8Array<ArrayBuffer> => {
+	// save encoded length for checking padding
+	const nl_encoded = sb64_data.length;
+
 	// remove padding from string and normalize from URL-safe variant
 	sb64_data = sb64_data.replace(/=+$/, '').replace(/[-_]/g, s => '-' === s? '+': '_' === s? '/': s);
 
-	// reject impossible sextet count
-	if(1 === (sb64_data.length & 3)) die('Invalid base64 string');
+	// reject impossible sextet count or excess padding
+	if(1 === (sb64_data.length & 3) || nl_encoded-sb64_data.length > (-sb64_data.length & 3)) die('Invalid base64 string');
 
 	// a buffer to store decoded sextets
 	let xb_work = 0;
@@ -680,6 +683,10 @@ export const base64_to_bytes = (sb64_data: string): Uint8Array<ArrayBuffer> => {
 		}
 	}
 
+	// reject nonzero padding bits
+	if(xb_work) die('Invalid base64 string');
+
+	// return decoded bytes
 	return bytes(a_out);
 };
 

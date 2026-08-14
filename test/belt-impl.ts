@@ -44,7 +44,7 @@ const h_typeofs = {
 	string: '',
 	symbol: Symbol(''),
 	object: {},
-	function: () => {},
+	function: () => void 0,
 } as const;
 
 
@@ -191,11 +191,11 @@ describe('is_iterable', () => {
 
 describe('concat_entries', () => {
 	test('{}', () => {
-		expect(concat_entries({}, () => {})).toEqual([]);
+		expect(concat_entries({}, () => void 0)).toEqual([]);
 	});
 
 	test('[]', () => {
-		expect(concat_entries([], () => {})).toEqual([]);
+		expect(concat_entries([], () => void 0)).toEqual([]);
 	});
 
 	test('object filter undefined', () => {

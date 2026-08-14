@@ -27,31 +27,24 @@
   "scripts": {
     "build:mjs": "tsc -p tsconfig.mjs.json",
     "build:cjs": "tsc -p tsconfig.cjs.json && bash scripts/cjs-fix.sh",
-    "build": "pnpm run build:mjs && pnpm run build:cjs",
+    "build": "rm -rf dist && pnpm run build:mjs && pnpm run build:cjs",
     "bundle": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
     "test": "pnpm run build && bun test ./test/*.ts"
   },
   "devDependencies": {
-    "@blake.regalia/tsconfig": "^0.3.7",
-    "@jest/globals": "^30.0.5",
-    "@rollup/plugin-typescript": "^12.1.4",
-    "@tsconfig/node22": "^22.0.2",
-    "@types/node": "^24.2.0",
-    "@types/web": "^0.0.259",
-    "@typescript-eslint/parser": "^8.39.0",
+    "@blake.regalia/eslint-config-elite": "^0.6.1",
+    "@blake.regalia/tsconfig": "^0.4.0",
+    "@rollup/plugin-typescript": "^12.3.0",
+    "@tsconfig/node24": "^24.0.4",
+    "@types/node": "^24.13.3",
+    "@types/web": "^0.0.354",
+    "@typescript-eslint/parser": "^8.67.0",
     "eslint": "^9.32.0",
-    "jest": "^30.0.5",
-    "rollup": "^4.46.2",
-    "ts-node": "^10.9.2",
-    "ts-toolbelt": "^9.6.0",
+    "rollup": "^4.62.4",
     "typescript": "^5.9.2"
   },
   "publishConfig": {
     "access": "public"
   },
-  "packageManager": "pnpm@10.14.0",
-  "dependencies": {
-    "@blake.regalia/eslint-config-elite": "^0.5.22",
-    "globals": "^16.3.0"
-  }
+  "packageManager": "pnpm@10.14.0"
 }

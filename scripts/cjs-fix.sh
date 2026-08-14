@@ -21,6 +21,9 @@ find "$DIR" -type f \( -name '*.cjs' -o -name '*.d.cts' \) -exec sed -i.bak -e '
 # Update sourceMappingURL comments
 find "$DIR" -type f -name '*.cjs' -exec sed -i.bak 's/\.js\.map/.cjs.map/g' {} \; -exec rm '{}.bak' \;
 
+# Update source map filenames
+find "$DIR" -type f -name '*.cjs.map' -exec sed -i.bak 's/"file":"\([^"]*\)\.js"/"file":"\1.cjs"/' {} \; -exec rm '{}.bak' \;
+
 # Update declaration sourceMappingURL comments
 find "$DIR" -type f -name '*.d.cts' -exec sed -i.bak 's/\.d\.ts\.map/.d.cts.map/g' {} \; -exec rm '{}.bak' \;
 
