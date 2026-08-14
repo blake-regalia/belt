@@ -2,17 +2,21 @@
 	"extends": "@blake.regalia/tsconfig/tsconfig.node.json",
 
 	"compilerOptions": {
-		"baseUrl": ".",
 		"outDir": "dist/void",
 		"declarationDir": "dist/void",
+		"rootDir": ".",
 		"incremental": false,
+		"moduleResolution": "bundler",
 
-		"moduleResolution": "node",
+		"paths": {
+			"*": ["./*"]
+		},
+		"types": ["node", "web"],
 	},
 
 	"include": [
 		"src/**/*.ts",
-		"rollup.config.ts",
+		"rollup.config.mjs",
 		"test/**/*.ts",
 	],
 }

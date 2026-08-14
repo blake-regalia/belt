@@ -11,11 +11,7 @@ export default defineConfig({
 	},
 	plugins: [
 		typescript({
-			sourceMap: false,
-			include: 'src/**.ts',
-			compilerOptions: {
-				allowImportingTsExtensions: false,
-			},
+			tsconfig: './tsconfig.bundle.json',
 		}),
 	],
 });

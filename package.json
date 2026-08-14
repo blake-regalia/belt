@@ -28,7 +28,7 @@
     "build:mjs": "tsc -p tsconfig.mjs.json",
     "build:cjs": "tsc -p tsconfig.cjs.json && bash scripts/cjs-fix.sh",
     "build": "rm -rf dist && pnpm run build:mjs && pnpm run build:cjs",
-    "bundle": "rollup --config rollup.config.ts --configPlugin @rollup/plugin-typescript",
+    "bundle": "rollup --config rollup.config.mjs",
     "test": "pnpm run build && bun test ./test/*.ts"
   },
   "devDependencies": {
@@ -36,12 +36,13 @@
     "@blake.regalia/tsconfig": "^0.4.0",
     "@rollup/plugin-typescript": "^12.3.0",
     "@tsconfig/node24": "^24.0.4",
-    "@types/node": "^24.13.3",
+    "@types/node": "^26.2.0",
     "@types/web": "^0.0.354",
     "@typescript-eslint/parser": "^8.67.0",
+    "@typescript/native": "npm:typescript@^7.0.2",
     "eslint": "^9.32.0",
     "rollup": "^4.62.4",
-    "typescript": "^5.9.2"
+    "typescript": "npm:@typescript/typescript6@^6.0.2"
   },
   "publishConfig": {
     "access": "public"

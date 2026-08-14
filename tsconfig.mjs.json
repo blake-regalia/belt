@@ -2,11 +2,11 @@
 	"extends": "./tsconfig.json",
 
 	"compilerOptions": {
-		"baseUrl": ".",
 		"outDir": "dist/mjs",
 		"declarationDir": "dist/mjs",
+		"rootDir": "src",
 
-		"moduleResolution": "node",
+		"moduleResolution": "bundler",
 		"module": "ES2022",
 	},
 
